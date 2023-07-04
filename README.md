@@ -70,10 +70,32 @@ $ echo "go mod vendor"
 
 ## usage
 
-- use this template, replace list below
-    - `github.com/sinlov-go/go-git-tools` to your package name
-    - `sinlov-go` to your owner name
-    - `go-git-tools` to your project name
+```go
+package main
+
+import (
+	"github.com/sinlov-go/go-git-tools/git_info"
+	"testing"
+)
+
+func TestFoo(t *testing.T) {
+	var projectRootPath = "/Users/sinlov/go/src/github.com/sinlov-go/go-git-tools"
+	url, err := git_info.RepositoryFistRemoteInfo(projectRootPath, "origin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("url.Host: %s", url.Host)
+	t.Logf("url.User: %s", url.User)
+	t.Logf("url.Repo: %s", url.Repo)
+
+	branchByPath, err := git_info.RepositoryNowBranchByPath(projectRootPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("branchByPath: %s", branchByPath)
+}
+
+```
 
 # dev
 
