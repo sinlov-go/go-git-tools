@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/stretchr/testify/suite"
@@ -32,6 +33,13 @@ func TestRepositorySuite(t *testing.T) {
 }
 
 func (s *RepositorySuite) TestLogSuccess() {
-	_, gotErr := s.repo.Log("", "")
+	res, gotErr := s.repo.Log("", "")
 	s.NoError(gotErr)
+	fmt.Printf("res len %d\n", len(res))
+	if len(res) > 0 {
+		hash := res[0].Hash
+		if !hash.IsZero() {
+			fmt.Printf("res[0] hash %s\n", hash.String())
+		}
+	}
 }

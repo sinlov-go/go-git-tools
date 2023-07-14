@@ -1,4 +1,4 @@
-[![golang-ci](https://github.com/sinlov-go/go-git-tools/actions/workflows/golang-ci.yml/badge.svg)](https://github.com/sinlov-go/go-git-tools/actions/workflows/golang-ci.yml)
+[![ci](https://github.com/sinlov-go/go-git-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/sinlov-go/go-git-tools/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools)
 [![go mod version](https://img.shields.io/github/go-mod/go-version/sinlov-go/go-git-tools?label=go.mod)](https://github.com/sinlov-go/go-git-tools)
 [![GoDoc](https://godoc.org/github.com/sinlov-go/go-git-tools?status.png)](https://godoc.org/github.com/sinlov-go/go-git-tools/)
