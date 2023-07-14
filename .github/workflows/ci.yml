@@ -37,7 +37,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/go-release.yml
     with:
-      upload_artifact_name: go-release
+#      upload_artifact_name: go-release
 
   deploy-tag:
     needs:
@@ -50,4 +50,4 @@ jobs:
       prerelease: true
       tag_name: ${{ needs.version.outputs.tag_name }}
       tag_changes: ${{ needs.version.outputs.tag_changes }}
-      download_artifact_name: go-release
+#      download_artifact_name: go-release
