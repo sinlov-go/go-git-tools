@@ -39,6 +39,6 @@ jobs:
           name: ${{ inputs.upload_artifact_name }}
           retention-days: 5
           if-no-files-found: error
-#          path: |
-#            ${{ env.DIST_OS_DIR }}/*.tar.gz
-#            ${{ env.DIST_OS_DIR }}/*.tar.gz.sha256
+          path: |
+            ${{ env.DIST_OS_DIR }}/*.tar.gz
+            ${{ env.DIST_OS_DIR }}/*.tar.gz.sha256
