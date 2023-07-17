@@ -1,4 +1,4 @@
-package git_info_test
+package git_test
 
 import (
 	"bytes"

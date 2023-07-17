@@ -2,8 +2,10 @@ package git
 
 import (
 	"fmt"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-git/v5/storage"
 
-	"github.com/go-git/go-git/v5"
+	goGit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/storer"
@@ -22,20 +24,34 @@ type Repository interface {
 }
 
 type repo struct {
-	gitRepo *git.Repository
+	gitRepo *goGit.Repository
 }
 
-type stopFn func(*object.Commit) error
-
-// NewRepository return Repository from path
-func NewRepository(path string) (Repository, error) {
-	gitRepo, err := git.PlainOpen(path)
+// NewRepositoryByPath return Repository from path
+func NewRepositoryByPath(path string) (Repository, error) {
+	gitRepo, err := goGit.PlainOpen(path)
 	if err != nil {
 		return nil, err
 	}
 
 	return &repo{
 		gitRepo: gitRepo,
+	}, nil
+}
+
+// NewRepositoryClone
+// return Repository from git.Repository
+func NewRepositoryClone(s storage.Storer, worktree billy.Filesystem, o *goGit.CloneOptions) (Repository, error) {
+	repository, err := goGit.Clone(s, worktree, o)
+	if err != nil {
+		return nil, err
+	}
+	if repository == nil {
+		return nil, fmt.Errorf("repository is nil")
+	}
+
+	return &repo{
+		gitRepo: repository,
 	}, nil
 }
 
@@ -69,14 +85,14 @@ func (r *repo) Commit(commitMessage string, paths ...string) error {
 	}
 
 	for _, path := range paths {
-		if err := gitWorktree.AddWithOptions(&git.AddOptions{
+		if err := gitWorktree.AddWithOptions(&goGit.AddOptions{
 			Path: path,
 		}); err != nil {
 			return fmt.Errorf("failed to git add %s: %w", path, err)
 		}
 	}
 
-	if _, err := gitWorktree.Commit(commitMessage, &git.CommitOptions{}); err != nil {
+	if _, err := gitWorktree.Commit(commitMessage, &goGit.CommitOptions{}); err != nil {
 		return fmt.Errorf("failed to git commit: %w", err)
 	}
 
@@ -84,7 +100,7 @@ func (r *repo) Commit(commitMessage string, paths ...string) error {
 }
 
 func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]Commit, error) {
-	cIter, err := r.gitRepo.Log(&git.LogOptions{
+	cIter, err := r.gitRepo.Log(&goGit.LogOptions{
 		From: *fromHash,
 	})
 	if err != nil {
@@ -99,6 +115,8 @@ func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]
 
 	return commits, nil
 }
+
+type stopFn func(*object.Commit) error
 
 func stopAtHash(hash *plumbing.Hash) stopFn {
 	return func(c *object.Commit) error {
