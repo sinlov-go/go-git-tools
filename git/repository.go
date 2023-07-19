@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5/storage"
+	"strings"
 
 	goGit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -17,14 +18,143 @@ const (
 	defaultCommitCount = 10
 )
 
-// Repository is an abstraction for git-repository
-type Repository interface {
-	Log(fromRev, toRev string) ([]Commit, error)
-	Commit(commitMessage string, paths ...string) error
-}
-
 type repo struct {
 	gitRepo *goGit.Repository
+}
+
+// Log return all commits between <from revision> and <to revision>
+func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
+	if fromRev == "" {
+		fromRev = head
+	}
+
+	fromHash, err := r.gitRepo.ResolveRevision(plumbing.Revision(fromRev))
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve %s: %w", fromRev, err)
+	}
+
+	if toRev == "" {
+		return r.logWithStopFn(fromHash, nil, nil)
+	}
+
+	toHash, err := r.gitRepo.ResolveRevision(plumbing.Revision(toRev))
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve %s: %w", toRev, err)
+	}
+
+	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
+}
+
+func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
+	if tagName == "" {
+		return nil, fmt.Errorf("commit tag search by name is empty")
+	}
+	tags, err := r.gitRepo.Tags()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tags: %w", err)
+	}
+	var wantCommit *Commit
+	errForEach := tags.ForEach(func(ref *plumbing.Reference) error {
+		referNameShort := ref.Name().Short()
+		if referNameShort == tagName {
+			revision, errRR := r.gitRepo.ResolveRevision(plumbing.Revision(ref.Name()))
+			if errRR != nil {
+				return errRR
+			}
+			cIter, errLog := r.gitRepo.Log(&goGit.LogOptions{
+				From: *revision,
+			})
+			if errLog != nil {
+				return errLog
+			}
+			errRR = cIter.ForEach(func(c *object.Commit) error {
+				if c.Hash.String() == revision.String() {
+					cmt := newCommit(c)
+					wantCommit = &cmt
+				}
+				return nil
+			})
+			if errRR != nil {
+				return errRR
+			}
+			return nil
+		}
+		return nil
+	})
+	if errForEach != nil {
+		return nil, fmt.Errorf("failed to ForEach tags: %w", errForEach)
+	}
+	if wantCommit == nil {
+		return nil, fmt.Errorf("can not find commit at tag: %s", tagName)
+	}
+	return wantCommit, nil
+}
+
+func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
+	if firstLine == "" {
+		return nil, fmt.Errorf("commit tag search by firstLine is empty")
+	}
+	tags, err := r.gitRepo.Tags()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tags: %w", err)
+	}
+	var wantCommit *Commit
+	errForEach := tags.ForEach(func(ref *plumbing.Reference) error {
+		revision, errRR := r.gitRepo.ResolveRevision(plumbing.Revision(ref.Name()))
+		if errRR != nil {
+			return errRR
+		}
+		cIter, errLog := r.gitRepo.Log(&goGit.LogOptions{
+			From: *revision,
+		})
+		if errLog != nil {
+			return errLog
+		}
+		errRR = cIter.ForEach(func(c *object.Commit) error {
+			if c.Message != "" {
+				split := strings.Split(c.Message, "\n")
+				if len(split) > 0 {
+					if split[0] == firstLine {
+						cmt := newCommit(c)
+						wantCommit = &cmt
+					}
+				}
+			}
+			return nil
+		})
+		if errRR != nil {
+			return errRR
+		}
+		return nil
+	})
+	if errForEach != nil {
+		return nil, fmt.Errorf("failed to ForEach tags: %w", errForEach)
+	}
+	if wantCommit == nil {
+		return nil, fmt.Errorf("can not find tagBy FristLine: %s", firstLine)
+	}
+	return wantCommit, nil
+}
+
+func (r *repo) Commit(commitMessage string, paths ...string) error {
+	gitWorktree, err := r.gitRepo.Worktree()
+	if err != nil {
+		return fmt.Errorf("failed to get git worktree: %w", err)
+	}
+
+	for _, path := range paths {
+		if errAdd := gitWorktree.AddWithOptions(&goGit.AddOptions{
+			Path: path,
+		}); errAdd != nil {
+			return fmt.Errorf("failed to git add %s: %w", path, errAdd)
+		}
+	}
+
+	if _, errCommit := gitWorktree.Commit(commitMessage, &goGit.CommitOptions{}); errCommit != nil {
+		return fmt.Errorf("failed to git commit: %w", errCommit)
+	}
+
+	return nil
 }
 
 // NewRepositoryByPath return Repository from path
@@ -55,48 +185,12 @@ func NewRepositoryClone(s storage.Storer, worktree billy.Filesystem, o *goGit.Cl
 	}, nil
 }
 
-// Log return all commits between <from revision> and <to revision>
-func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
-	if fromRev == "" {
-		fromRev = head
-	}
-
-	fromHash, err := r.gitRepo.ResolveRevision(plumbing.Revision(fromRev))
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve %s: %w", fromRev, err)
-	}
-
-	if toRev == "" {
-		return r.logWithStopFn(fromHash, nil, nil)
-	}
-
-	toHash, err := r.gitRepo.ResolveRevision(plumbing.Revision(toRev))
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve %s: %w", toRev, err)
-	}
-
-	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
-}
-
-func (r *repo) Commit(commitMessage string, paths ...string) error {
-	gitWorktree, err := r.gitRepo.Worktree()
-	if err != nil {
-		return fmt.Errorf("failed to get git worktree: %w", err)
-	}
-
-	for _, path := range paths {
-		if err := gitWorktree.AddWithOptions(&goGit.AddOptions{
-			Path: path,
-		}); err != nil {
-			return fmt.Errorf("failed to git add %s: %w", path, err)
-		}
-	}
-
-	if _, err := gitWorktree.Commit(commitMessage, &goGit.CommitOptions{}); err != nil {
-		return fmt.Errorf("failed to git commit: %w", err)
-	}
-
-	return nil
+// Repository is an abstraction for git-repository
+type Repository interface {
+	Log(fromRev, toRev string) ([]Commit, error)
+	CommitTagSearchByName(tagName string) (*Commit, error)
+	CommitTagSearchByFirstLine(firstLine string) (*Commit, error)
+	Commit(commitMessage string, paths ...string) error
 }
 
 func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]Commit, error) {
@@ -109,8 +203,8 @@ func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]
 
 	commits := make([]Commit, 0, defaultCommitCount)
 
-	if err := cIter.ForEach(newIterFn(&commits, beginFn, endFn)); err != nil {
-		return nil, fmt.Errorf("failed to iterate each git log: %w", err)
+	if errFind := cIter.ForEach(newIterFn(&commits, beginFn, endFn)); errFind != nil {
+		return nil, fmt.Errorf("failed to iterate each git log: %w", errFind)
 	}
 
 	return commits, nil

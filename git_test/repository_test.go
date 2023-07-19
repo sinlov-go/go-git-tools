@@ -1,6 +1,7 @@
 package git_test
 
 import (
+	"fmt"
 	"github.com/go-git/go-billy/v5"
 	goGit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage"
@@ -45,7 +46,7 @@ func TestNewRepositoryClone(t *testing.T) {
 			s:        memory.NewStorage(),
 			worktree: nil,
 			o: &goGit.CloneOptions{
-				URL: "https://github.com/sinlov-go/go-git-tools",
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
 			},
 		},
 		{
@@ -73,6 +74,162 @@ func TestNewRepositoryClone(t *testing.T) {
 			commits, errLog := gotResult.Log("", "")
 			assert.Equal(t, tc.logErr, errLog)
 			t.Logf("git commits len: %v", len(commits))
+		})
+	}
+}
+
+func TestCommitTagSearchByName(t *testing.T) {
+	// mock CommitTagSearchByName
+	tests := []struct {
+		name                   string
+		s                      storage.Storer
+		worktree               billy.Filesystem
+		o                      *goGit.CloneOptions
+		tagName                string
+		wantTagHash            string
+		wantCloneErr           bool
+		wantTagSearchByNameErr error
+	}{
+		{
+			name:     "tag empty",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			tagName:                "",
+			wantTagHash:            "",
+			wantCloneErr:           false,
+			wantTagSearchByNameErr: fmt.Errorf("commit tag search by name is empty"),
+		},
+		{
+			name:     "tag not exist",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			tagName:                "0.1.2",
+			wantCloneErr:           false,
+			wantTagSearchByNameErr: fmt.Errorf("can not find commit at tag: 0.1.2"),
+		},
+		{
+			name:     "tag v1.3.0",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			tagName:     "v1.3.0",
+			wantTagHash: "231ccf643cffdc30722aa9f9bbc9b8e4ae817bde",
+		},
+		{
+			name:     "tag v1.2.3",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			tagName:     "v1.2.3",
+			wantTagHash: "4bb54b0fefb2a60f478397fcc2722999c658d72b",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do CommitTagSearchByName
+			gotResult, gotErr := git.NewRepositoryClone(tc.s, tc.worktree, tc.o)
+
+			// verify CommitTagSearchByName
+			assert.Equal(t, tc.wantCloneErr, gotErr != nil)
+			if tc.wantCloneErr {
+				t.Logf("gotErr: %v", gotErr)
+				return
+			}
+			commit, errTagSearch := gotResult.CommitTagSearchByName(tc.tagName)
+			assert.Equal(t, tc.wantTagSearchByNameErr, errTagSearch)
+			if errTagSearch != nil {
+				return
+			}
+			assert.Equal(t, tc.wantTagHash, commit.Hash.String())
+		})
+	}
+}
+
+func TestCommitTagSearchByFirstLine(t *testing.T) {
+	// mock CommitTagSearchByFirstLine
+	tests := []struct {
+		name                   string
+		s                      storage.Storer
+		worktree               billy.Filesystem
+		o                      *goGit.CloneOptions
+		firstLine              string
+		wantTagHash            string
+		wantCloneErr           bool
+		wantTagSearchByNameErr error
+	}{
+		{
+			name:     "first line empty",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			firstLine:              "",
+			wantTagHash:            "",
+			wantCloneErr:           false,
+			wantTagSearchByNameErr: fmt.Errorf("commit tag search by firstLine is empty"),
+		},
+		{
+			name:     "first line not exist",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			firstLine:              "foo first line",
+			wantCloneErr:           false,
+			wantTagSearchByNameErr: fmt.Errorf("can not find tagBy FristLine: foo first line"),
+		},
+		{
+			name:     "first line release 1.3.0",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			firstLine:   "chore(release): 1.3.0",
+			wantTagHash: "231ccf643cffdc30722aa9f9bbc9b8e4ae817bde",
+		},
+		{
+			name:     "first line release 1.2.3",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+			firstLine:   "chore(release): 1.2.3",
+			wantTagHash: "4bb54b0fefb2a60f478397fcc2722999c658d72b",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do CommitTagSearchByFirstLine
+			gotResult, gotErr := git.NewRepositoryClone(tc.s, tc.worktree, tc.o)
+
+			// verify CommitTagSearchByFirstLine
+			assert.Equal(t, tc.wantCloneErr, gotErr != nil)
+			if tc.wantCloneErr {
+				t.Logf("gotErr: %v", gotErr)
+				return
+			}
+			commit, errTagSearch := gotResult.CommitTagSearchByFirstLine(tc.firstLine)
+			assert.Equal(t, tc.wantTagSearchByNameErr, errTagSearch)
+			if errTagSearch != nil {
+				return
+			}
+			assert.Equal(t, tc.wantTagHash, commit.Hash.String())
 		})
 	}
 }
