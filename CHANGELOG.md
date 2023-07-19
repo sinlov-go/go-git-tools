@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/sinlov-go/go-git-tools/compare/v1.3.0...v1.4.0) (2023-07-19)
+
+
+### ✨ Features
+
+* git.repo add method CommitTagSearchByName and CommitTagSearchByFirstLine to get git.Commit ([9393ff1](https://github.com/sinlov-go/go-git-tools/commit/9393ff1e0856af721040c357fb315408486b03e1))
+
 ## [1.3.0](https://github.com/sinlov-go/go-git-tools/compare/v1.2.3...v1.3.0) (2023-07-18)
 
 
