@@ -233,3 +233,46 @@ func TestCommitTagSearchByFirstLine(t *testing.T) {
 		})
 	}
 }
+
+func TestCommitLatestTag(t *testing.T) {
+	// mock CommitLatestTagByTime
+	tests := []struct {
+		name             string
+		s                storage.Storer
+		worktree         billy.Filesystem
+		o                *goGit.CloneOptions
+		wantCloneErr     bool
+		wantLatestTagErr bool
+	}{
+		{
+			name:     "has tag",
+			s:        memory.NewStorage(),
+			worktree: nil,
+			o: &goGit.CloneOptions{
+				URL: "https://github.com/sinlov-go/go-git-tools.git",
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do CommitLatestTagByTime
+			gotResult, gotErr := git.NewRepositoryClone(tc.s, tc.worktree, tc.o)
+
+			// verify CommitLatestTagByTime
+			assert.Equal(t, tc.wantCloneErr, gotErr != nil)
+			if tc.wantCloneErr {
+				t.Logf("gotErr: %v", gotErr)
+				return
+			}
+			commitLatestTag, gotLatestTagErr := gotResult.CommitLatestTagByTime()
+
+			assert.Equal(t, tc.wantLatestTagErr, gotLatestTagErr != nil)
+
+			t.Logf("commitLatestTag Message %s", commitLatestTag.Message)
+			hash := commitLatestTag.Hash
+			assert.False(t, hash.IsZero())
+			t.Logf("commitLatestTag Hash %s", hash.String())
+		})
+	}
+}

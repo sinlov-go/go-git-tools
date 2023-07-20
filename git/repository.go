@@ -5,6 +5,7 @@ import (
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5/storage"
 	"strings"
+	"time"
 
 	goGit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -43,6 +44,26 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	}
 
 	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
+}
+
+func (r *repo) CommitLatestTagByTime() (*Commit, error) {
+	var wantCommit *Commit
+	tagLatest, err := r.TagLatestByCommitTime()
+	if err != nil {
+		return nil, err
+	}
+	commitTag, err := tagLatest.Commit()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest commit by tag: %w", err)
+	}
+	commit := newCommit(commitTag)
+	wantCommit = &commit
+
+	if wantCommit == nil {
+		return nil, fmt.Errorf("can not find commit by latest tag name: %s", tagLatest.Name)
+	}
+
+	return wantCommit, nil
 }
 
 func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
@@ -136,6 +157,48 @@ func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
 	return wantCommit, nil
 }
 
+// TagLatestByCommitTime
+//
+//	latest tag find by commit time, please ensure that the time of the device submitting the tag is synchronized correctly.
+//	check at: git show-ref --tag
+//
+// return latest tag
+func (r *repo) TagLatestByCommitTime() (*object.Tag, error) {
+
+	tagObjs, err := r.gitRepo.TagObjects()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tagObjs: %w", err)
+	}
+	var wantTag *object.Tag
+	commitTime := new(time.Time)
+	defer tagObjs.Close()
+	for {
+		obj, errNext := tagObjs.Next()
+		if errNext != nil {
+			break
+		}
+		commit, errNext := obj.Commit()
+		if errNext != nil {
+			continue
+		}
+		//name := obj.Name
+		//strings.TrimSpace(name)
+		//objString := obj.String()
+		//strings.TrimSpace(objString)
+		//commitHash := commit.Hash.String()
+		//strings.TrimSpace(commitHash)
+		commitWhen := commit.Author.When
+		if commitWhen.After(*commitTime) {
+			commitTime = &commitWhen
+			wantTag = obj
+		}
+	}
+	if wantTag == nil {
+		return nil, fmt.Errorf("can not find latest tag")
+	}
+	return wantTag, nil
+}
+
 func (r *repo) Commit(commitMessage string, paths ...string) error {
 	gitWorktree, err := r.gitRepo.Worktree()
 	if err != nil {
@@ -188,9 +251,13 @@ func NewRepositoryClone(s storage.Storer, worktree billy.Filesystem, o *goGit.Cl
 // Repository is an abstraction for git-repository
 type Repository interface {
 	Log(fromRev, toRev string) ([]Commit, error)
+
+	CommitLatestTagByTime() (*Commit, error)
 	CommitTagSearchByName(tagName string) (*Commit, error)
 	CommitTagSearchByFirstLine(firstLine string) (*Commit, error)
 	Commit(commitMessage string, paths ...string) error
+
+	TagLatestByCommitTime() (*object.Tag, error)
 }
 
 func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]Commit, error) {
