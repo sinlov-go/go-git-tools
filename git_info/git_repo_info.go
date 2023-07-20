@@ -100,6 +100,22 @@ func RepositoryFistRemoteInfo(path string, remote string) (*GitRemoteInfo, error
 	}
 	removeGitPath := strings.Replace(parse.Path, ".git", "", -1)
 	pathSplit := strings.Split(removeGitPath, "/")
+
+	if strings.Contains(parse.Scheme, "http") {
+		if len(pathSplit) < 3 {
+			return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path not support", remote, parse.Path)
+		}
+		return &GitRemoteInfo{
+			UrlStr:   urlStr,
+			Scheme:   parse.Scheme,
+			Host:     parse.Host,
+			Hostname: parse.Hostname(),
+			Port:     parse.Port(),
+			UserInfo: parse.User,
+			User:     pathSplit[1],
+			Repo:     pathSplit[2],
+		}, nil
+	}
 	if len(pathSplit) < 2 {
 		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path not support", remote, parse.Path)
 	}
