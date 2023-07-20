@@ -16,11 +16,14 @@ import (
 const (
 	head = "HEAD"
 
+	OriginDefault = "origin"
+
 	defaultCommitCount = 10
 )
 
 type repo struct {
-	gitRepo *goGit.Repository
+	gitRepo    *goGit.Repository
+	remoteName string
 }
 
 // Log return all commits between <from revision> and <to revision>
@@ -44,6 +47,33 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	}
 
 	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
+}
+
+func (r *repo) FetchTags() error {
+	//remotes, err := r.gitRepo.Remotes()
+	//if err != nil {
+	//	return err
+	//}
+	//if len(remotes) == 0 {
+	//	return fmt.Errorf("no remote found")
+	//}
+	//remote := remotes[0]
+	remote, err := r.gitRepo.Remote(r.remoteName)
+	if err != nil {
+		return err
+	}
+	errFetch := remote.Fetch(&goGit.FetchOptions{
+		RemoteName: r.remoteName,
+		Tags:       goGit.AllTags,
+	})
+	if errFetch != nil {
+		if errFetch == goGit.NoErrAlreadyUpToDate {
+			return nil
+		}
+		return fmt.Errorf("failed to fetch --tags err: %w", errFetch)
+	}
+
+	return nil
 }
 
 func (r *repo) CommitLatestTagByTime() (*Commit, error) {
@@ -158,7 +188,6 @@ func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
 //
 // return latest tag
 func (r *repo) TagLatestByCommitTime() (*object.Tag, error) {
-
 	tagObjs, err := r.gitRepo.TagObjects()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tagObjs: %w", err)
@@ -222,7 +251,8 @@ func NewRepositoryByPath(path string) (Repository, error) {
 	}
 
 	return &repo{
-		gitRepo: gitRepo,
+		gitRepo:    gitRepo,
+		remoteName: OriginDefault,
 	}, nil
 }
 
@@ -238,13 +268,16 @@ func NewRepositoryClone(s storage.Storer, worktree billy.Filesystem, o *goGit.Cl
 	}
 
 	return &repo{
-		gitRepo: repository,
+		gitRepo:    repository,
+		remoteName: OriginDefault,
 	}, nil
 }
 
 // Repository is an abstraction for git-repository
 type Repository interface {
 	Log(fromRev, toRev string) ([]Commit, error)
+
+	FetchTags() error
 
 	CommitLatestTagByTime() (*Commit, error)
 	CommitTagSearchByName(tagName string) (*Commit, error)

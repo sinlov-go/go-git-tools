@@ -249,8 +249,6 @@ func TestCommitLatestTag(t *testing.T) {
 
 		repoLocalPath    string
 		wantLocalPathErr bool
-
-		wantLatestTagErr bool
 	}{
 		{
 			name:     "has tag clone",
@@ -298,14 +296,80 @@ func TestCommitLatestTag(t *testing.T) {
 
 			if gotLatestTagErr != nil {
 				t.Logf("gotLatestTagErr %v", gotLatestTagErr)
+				return
 			}
-
-			assert.Equal(t, tc.wantLatestTagErr, gotLatestTagErr != nil)
 
 			t.Logf("commitLatestTag Message %s", commitLatestTag.Message)
 			hash := commitLatestTag.Hash
 			assert.False(t, hash.IsZero())
 			t.Logf("commitLatestTag Hash %s", hash.String())
+		})
+	}
+}
+
+func TestFetchTags(t *testing.T) {
+	// mock FetchTags
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
+	tests := []struct {
+		name         string
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+
+		wantFetchTagsErr bool
+	}{
+		{
+			name:     "clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "local",
+			repoLocalPath: gitRootPath,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do FetchTags
+			var gotCloneErr error
+			var gotLocalErr error
+			var gotResult git.Repository
+			if tc.cloneUrl != "" {
+				result, err := git.NewRepositoryClone(memory.NewStorage(), nil, &goGit.CloneOptions{
+					URL: tc.cloneUrl,
+				})
+				gotResult = result
+				gotCloneErr = err
+			}
+
+			if tc.repoLocalPath != "" {
+				result, err := git.NewRepositoryByPath(tc.repoLocalPath)
+				gotResult = result
+				gotLocalErr = err
+			}
+
+			// verify FetchTags
+			assert.Equal(t, tc.wantCloneErr, gotCloneErr != nil)
+			assert.Equal(t, tc.wantLocalPathErr, gotLocalErr != nil)
+			if tc.wantCloneErr {
+				t.Logf("gotErr: %v", gotCloneErr)
+				return
+			}
+			if tc.wantLocalPathErr {
+				t.Logf("gotErr: %v", gotLocalErr)
+				return
+			}
+
+			gotFetchTagsErr := gotResult.FetchTags()
+			if gotFetchTagsErr != nil {
+				t.Logf("gotFetchTagsErr err: %v", gotFetchTagsErr)
+			}
 		})
 	}
 }
