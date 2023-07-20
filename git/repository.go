@@ -47,7 +47,6 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 }
 
 func (r *repo) CommitLatestTagByTime() (*Commit, error) {
-	var wantCommit *Commit
 	tagLatest, err := r.TagLatestByCommitTime()
 	if err != nil {
 		return nil, err
@@ -57,13 +56,8 @@ func (r *repo) CommitLatestTagByTime() (*Commit, error) {
 		return nil, fmt.Errorf("failed to get latest commit by tag: %w", err)
 	}
 	commit := newCommit(commitTag)
-	wantCommit = &commit
 
-	if wantCommit == nil {
-		return nil, fmt.Errorf("can not find commit by latest tag name: %s", tagLatest.Name)
-	}
-
-	return wantCommit, nil
+	return &commit, nil
 }
 
 func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
