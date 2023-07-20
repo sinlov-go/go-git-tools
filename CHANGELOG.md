@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/sinlov-go/go-git-tools/compare/v1.5.0...v1.6.0) (2023-07-20)
+
+
+### ✨ Features
+
+* add method FetchTags ([7817371](https://github.com/sinlov-go/go-git-tools/commit/7817371a2d4dfecc5a0bd861bf171a23d332e1cc))
+
+
+### 🐛 Bug Fixes
+
+* fix RepositoryFistRemoteInfo at http url error ([e09ea2d](https://github.com/sinlov-go/go-git-tools/commit/e09ea2daf26bc639b17bcc5ef5994787a5dbdb13))
+
 ## [1.5.0](https://github.com/sinlov-go/go-git-tools/compare/v1.4.0...v1.5.0) (2023-07-20)
 
 
