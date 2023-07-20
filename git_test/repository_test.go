@@ -236,35 +236,64 @@ func TestCommitTagSearchByFirstLine(t *testing.T) {
 
 func TestCommitLatestTag(t *testing.T) {
 	// mock CommitLatestTagByTime
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
 	tests := []struct {
-		name             string
-		s                storage.Storer
-		worktree         billy.Filesystem
-		o                *goGit.CloneOptions
-		wantCloneErr     bool
+		name string
+
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+
 		wantLatestTagErr bool
 	}{
 		{
-			name:     "has tag",
-			s:        memory.NewStorage(),
-			worktree: nil,
-			o: &goGit.CloneOptions{
-				URL: "https://github.com/sinlov-go/go-git-tools.git",
-			},
+			name:     "has tag clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "has tag local",
+			repoLocalPath: gitRootPath,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 
 			// do CommitLatestTagByTime
-			gotResult, gotErr := git.NewRepositoryClone(tc.s, tc.worktree, tc.o)
+			var gotCloneErr error
+			var gotLocalErr error
+			var gotResult git.Repository
+			if tc.cloneUrl != "" {
+				result, err := git.NewRepositoryClone(memory.NewStorage(), nil, &goGit.CloneOptions{
+					URL: tc.cloneUrl,
+				})
+				gotResult = result
+				gotCloneErr = err
+			}
+
+			if tc.repoLocalPath != "" {
+				result, err := git.NewRepositoryByPath(tc.repoLocalPath)
+				gotResult = result
+				gotLocalErr = err
+			}
 
 			// verify CommitLatestTagByTime
-			assert.Equal(t, tc.wantCloneErr, gotErr != nil)
+			assert.Equal(t, tc.wantCloneErr, gotCloneErr != nil)
+			assert.Equal(t, tc.wantLocalPathErr, gotLocalErr != nil)
 			if tc.wantCloneErr {
-				t.Logf("gotErr: %v", gotErr)
+				t.Logf("gotErr: %v", gotCloneErr)
 				return
 			}
+			if tc.wantLocalPathErr {
+				t.Logf("gotErr: %v", gotLocalErr)
+				return
+			}
+
 			commitLatestTag, gotLatestTagErr := gotResult.CommitLatestTagByTime()
 
 			assert.Equal(t, tc.wantLatestTagErr, gotLatestTagErr != nil)
