@@ -54,6 +54,7 @@ func RepositoryConfigPath(path string) (*gitConfig.Config, error) {
 }
 
 type GitRemoteInfo struct {
+	UrlStr   string
 	Scheme   string
 	Host     string
 	Hostname string
@@ -103,6 +104,7 @@ func RepositoryFistRemoteInfo(path string, remote string) (*GitRemoteInfo, error
 		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path not support", remote, parse.Path)
 	}
 	return &GitRemoteInfo{
+		UrlStr:   urlStr,
 		Scheme:   parse.Scheme,
 		Host:     parse.Host,
 		Hostname: parse.Hostname(),

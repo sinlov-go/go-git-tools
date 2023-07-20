@@ -14,6 +14,8 @@ func TestRepositoryFistRemote(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("url.UrlStr: %s", url.UrlStr)
+	t.Logf("url.Scheme: %s", url.Scheme)
 	t.Logf("url.Host: %s", url.Host)
 	t.Logf("url.User: %s", url.User)
 	t.Logf("url.Repo: %s", url.Repo)

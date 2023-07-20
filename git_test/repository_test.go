@@ -296,6 +296,10 @@ func TestCommitLatestTag(t *testing.T) {
 
 			commitLatestTag, gotLatestTagErr := gotResult.CommitLatestTagByTime()
 
+			if gotLatestTagErr != nil {
+				t.Logf("gotLatestTagErr %v", gotLatestTagErr)
+			}
+
 			assert.Equal(t, tc.wantLatestTagErr, gotLatestTagErr != nil)
 
 			t.Logf("commitLatestTag Message %s", commitLatestTag.Message)
