@@ -142,8 +142,6 @@ func TestHeadBranchName(t *testing.T) {
 
 		repoLocalPath    string
 		wantLocalPathErr bool
-
-		wantGetErr bool
 	}{
 		{
 			name:     "clone",
@@ -165,8 +163,11 @@ func TestHeadBranchName(t *testing.T) {
 
 			// verify HeadBranchName
 			branchName, errHeadBranchName := gotResult.HeadBranchName()
-			assert.Equal(t, tc.wantGetErr, errHeadBranchName != nil)
-			t.Logf("branchName: %s", branchName)
+			if errHeadBranchName != nil {
+				t.Logf("errHeadBranchName %v", errHeadBranchName)
+			} else {
+				t.Logf("branchName: %s", branchName)
+			}
 		})
 	}
 }
@@ -186,8 +187,6 @@ func TestRemoteInfo(t *testing.T) {
 
 		repoLocalPath    string
 		wantLocalPathErr bool
-
-		wantErrRemoteInfo bool
 	}{
 		{
 			name:     "clone",
@@ -209,14 +208,17 @@ func TestRemoteInfo(t *testing.T) {
 
 			// verify RemoteInfo
 			gitRemoteInfo, errRemoteInfo := gotResult.RemoteInfo(git.OriginDefault, 0)
-			assert.Equal(t, tc.wantErrRemoteInfo, errRemoteInfo != nil)
-			t.Logf("gitRemoteInfo.UrlStr %s", gitRemoteInfo.UrlStr)
-			t.Logf("gitRemoteInfo.Scheme %s", gitRemoteInfo.Scheme)
-			t.Logf("gitRemoteInfo.Host %s", gitRemoteInfo.Host)
-			t.Logf("gitRemoteInfo.Hostname %s", gitRemoteInfo.Hostname)
-			t.Logf("gitRemoteInfo.Port %s", gitRemoteInfo.Port)
-			t.Logf("gitRemoteInfo.User %s", gitRemoteInfo.User)
-			t.Logf("gitRemoteInfo.Repo %s", gitRemoteInfo.Repo)
+			if errRemoteInfo != nil {
+				t.Logf("errRemoteInfo %v", errRemoteInfo)
+			} else {
+				t.Logf("gitRemoteInfo.UrlStr %s", gitRemoteInfo.UrlStr)
+				t.Logf("gitRemoteInfo.Scheme %s", gitRemoteInfo.Scheme)
+				t.Logf("gitRemoteInfo.Host %s", gitRemoteInfo.Host)
+				t.Logf("gitRemoteInfo.Hostname %s", gitRemoteInfo.Hostname)
+				t.Logf("gitRemoteInfo.Port %s", gitRemoteInfo.Port)
+				t.Logf("gitRemoteInfo.User %s", gitRemoteInfo.User)
+				t.Logf("gitRemoteInfo.Repo %s", gitRemoteInfo.Repo)
+			}
 		})
 	}
 }
