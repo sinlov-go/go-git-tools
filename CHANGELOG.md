@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/sinlov-go/go-git-tools/compare/v1.6.0...v1.7.0) (2023-07-21)
+
+
+### ✨ Features
+
+* add git.NewRepositoryRemoteByPath and git.NewRepositoryRemoteClone ([e910096](https://github.com/sinlov-go/go-git-tools/commit/e910096face51f8da3f7547f7db7ea0691b02c04))
+
 ## [1.6.0](https://github.com/sinlov-go/go-git-tools/compare/v1.5.0...v1.6.0) (2023-07-20)
 
 
