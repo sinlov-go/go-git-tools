@@ -127,6 +127,50 @@ func TestNewRepositoryClone(t *testing.T) {
 	}
 }
 
+func TestHeadBranchName(t *testing.T) {
+	// mock HeadBranchName
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
+	tests := []struct {
+		name string
+
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+
+		wantGetErr bool
+	}{
+		{
+			name:     "has tag clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "has tag local",
+			repoLocalPath: gitRootPath,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do HeadBranchName
+			gotResult, done := getRepository(t, tc.cloneUrl, tc.wantCloneErr, tc.repoLocalPath, tc.wantLocalPathErr)
+			if done {
+				return
+			}
+
+			// verify HeadBranchName
+			branchName, errHeadBranchName := gotResult.HeadBranchName()
+			assert.Equal(t, tc.wantGetErr, errHeadBranchName != nil)
+			t.Logf("branchName: %s", branchName)
+		})
+	}
+}
+
 func TestCommitLatestTag(t *testing.T) {
 	// mock CommitLatestTagByTime
 	currentFolderPath, err := getCurrentFolderPath()

@@ -26,6 +26,25 @@ type repo struct {
 	remoteName string
 }
 
+func (r *repo) HeadReference() (*plumbing.Reference, error) {
+	return r.gitRepo.Head()
+}
+
+func (r *repo) HeadBranchName() (string, error) {
+	referenceHead, err := r.HeadReference()
+	if err != nil {
+		return "", err
+	}
+	if err != nil {
+		return "", fmt.Errorf("HeadBranchName can not get head: %s", err)
+	}
+	referenceName := referenceHead.Name()
+	if !referenceName.IsBranch() {
+		return "", fmt.Errorf("HeadBranchName head is not branch: %s", referenceName.String())
+	}
+	return referenceName.Short(), nil
+}
+
 // Log return all commits between <from revision> and <to revision>
 func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	if fromRev == "" {
@@ -289,6 +308,10 @@ func NewRepositoryRemoteClone(remote string, s storage.Storer, worktree billy.Fi
 
 // Repository is an abstraction for git-repository
 type Repository interface {
+	HeadReference() (*plumbing.Reference, error)
+
+	HeadBranchName() (string, error)
+
 	Log(fromRev, toRev string) ([]Commit, error)
 
 	FetchTags() error
