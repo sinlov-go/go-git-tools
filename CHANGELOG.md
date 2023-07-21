@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/sinlov-go/go-git-tools/compare/v1.7.0...v1.8.0) (2023-07-21)
+
+
+### ✨ Features
+
+* add git.HeadReference and git.HeadBranchName ([de631c6](https://github.com/sinlov-go/go-git-tools/commit/de631c6162d3696b226fadcb407d61f946e5d2fd))
+* add git.RemoteInfo to get RemoteInfo ([c6652da](https://github.com/sinlov-go/go-git-tools/commit/c6652da18148a6ad8fafb0b4a6a56974e12fa383))
+
 ## [1.7.0](https://github.com/sinlov-go/go-git-tools/compare/v1.6.0...v1.7.0) (2023-07-21)
 
 
