@@ -146,11 +146,11 @@ func TestHeadBranchName(t *testing.T) {
 		wantGetErr bool
 	}{
 		{
-			name:     "has tag clone",
+			name:     "clone",
 			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
 		},
 		{
-			name:          "has tag local",
+			name:          "local",
 			repoLocalPath: gitRootPath,
 		},
 	}
@@ -167,6 +167,56 @@ func TestHeadBranchName(t *testing.T) {
 			branchName, errHeadBranchName := gotResult.HeadBranchName()
 			assert.Equal(t, tc.wantGetErr, errHeadBranchName != nil)
 			t.Logf("branchName: %s", branchName)
+		})
+	}
+}
+
+func TestRemoteInfo(t *testing.T) {
+	// mock RemoteInfo
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
+	tests := []struct {
+		name string
+
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+
+		wantErrRemoteInfo bool
+	}{
+		{
+			name:     "clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "local",
+			repoLocalPath: gitRootPath,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do RemoteInfo
+			gotResult, done := getRepository(t, tc.cloneUrl, tc.wantCloneErr, tc.repoLocalPath, tc.wantLocalPathErr)
+			if done {
+				return
+			}
+
+			// verify RemoteInfo
+			gitRemoteInfo, errRemoteInfo := gotResult.RemoteInfo(git.OriginDefault, 0)
+			assert.Equal(t, tc.wantErrRemoteInfo, errRemoteInfo != nil)
+			t.Logf("gitRemoteInfo.UrlStr %s", gitRemoteInfo.UrlStr)
+			t.Logf("gitRemoteInfo.Scheme %s", gitRemoteInfo.Scheme)
+			t.Logf("gitRemoteInfo.Host %s", gitRemoteInfo.Host)
+			t.Logf("gitRemoteInfo.Hostname %s", gitRemoteInfo.Hostname)
+			t.Logf("gitRemoteInfo.Port %s", gitRemoteInfo.Port)
+			t.Logf("gitRemoteInfo.User %s", gitRemoteInfo.User)
+			t.Logf("gitRemoteInfo.Repo %s", gitRemoteInfo.Repo)
 		})
 	}
 }

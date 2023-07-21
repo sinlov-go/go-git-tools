@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5/storage"
+	"github.com/sinlov-go/go-git-tools/git_info"
+	gitUrls "github.com/whilp/git-urls"
 	"strings"
 	"time"
 
@@ -262,6 +264,66 @@ func (r *repo) Commit(commitMessage string, paths ...string) error {
 	return nil
 }
 
+// RemoteInfo
+//
+// remote most is git.OriginDefault
+//
+// configUrlIndex most is 0
+//
+// return Repository from git.Repository
+func (r *repo) RemoteInfo(remoteName string, configUrlIndex int) (*git_info.GitRemoteInfo, error) {
+	remote, err := r.gitRepo.Remote(remoteName)
+	if err != nil {
+		return nil, err
+	}
+	remoteConfig := remote.Config()
+	if remoteConfig == nil {
+		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s not found", remote)
+	}
+	if len(remoteConfig.URLs) < configUrlIndex {
+		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs is empty", remote)
+	}
+	urlStr := remoteConfig.URLs[configUrlIndex]
+	parse, err := gitUrls.Parse(urlStr)
+	if err != nil {
+		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse err: %s", remote, urlStr, err)
+	}
+	if parse.Path == "" {
+		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path is empty", remote, urlStr)
+	}
+	removeGitPath := strings.Replace(parse.Path, ".git", "", -1)
+	pathSplit := strings.Split(removeGitPath, "/")
+
+	if strings.Contains(parse.Scheme, "http") {
+		if len(pathSplit) < 3 {
+			return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path not support", remote, parse.Path)
+		}
+		return &git_info.GitRemoteInfo{
+			UrlStr:   urlStr,
+			Scheme:   parse.Scheme,
+			Host:     parse.Host,
+			Hostname: parse.Hostname(),
+			Port:     parse.Port(),
+			UserInfo: parse.User,
+			User:     pathSplit[1],
+			Repo:     pathSplit[2],
+		}, nil
+	}
+	if len(pathSplit) < 2 {
+		return nil, fmt.Errorf("RepositoryFistRemoteInfo remote: %s URLs[0]: %s parse path not support", remote, parse.Path)
+	}
+	return &git_info.GitRemoteInfo{
+		UrlStr:   urlStr,
+		Scheme:   parse.Scheme,
+		Host:     parse.Host,
+		Hostname: parse.Hostname(),
+		Port:     parse.Port(),
+		UserInfo: parse.User,
+		User:     pathSplit[0],
+		Repo:     pathSplit[1],
+	}, nil
+}
+
 // NewRepositoryByPath return Repository from path
 func NewRepositoryByPath(path string) (Repository, error) {
 	return NewRepositoryRemoteByPath(OriginDefault, path)
@@ -322,6 +384,8 @@ type Repository interface {
 	Commit(commitMessage string, paths ...string) error
 
 	TagLatestByCommitTime() (*object.Tag, error)
+
+	RemoteInfo(remoteName string, configUrlIndex int) (*git_info.GitRemoteInfo, error)
 }
 
 func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]Commit, error) {
