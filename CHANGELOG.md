@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/sinlov-go/go-git-tools/compare/v1.8.0...v1.8.1) (2023-07-21)
+
+
+### 🐛 Bug Fixes
+
+* test case error at CI env, so fix this ([af5f671](https://github.com/sinlov-go/go-git-tools/commit/af5f671ac1919b224b5062f67ba5466373232577))
+
 ## [1.8.0](https://github.com/sinlov-go/go-git-tools/compare/v1.7.0...v1.8.0) (2023-07-21)
 
 
