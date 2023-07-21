@@ -12,6 +12,55 @@ import (
 	"testing"
 )
 
+func getRepository(t *testing.T,
+	cloneUrl string,
+	wantCloneErr bool,
+	repoLocalPath string,
+	wantLocalPathErr bool,
+) (git.Repository, bool) {
+	return getRepositoryRemote(t, git.OriginDefault, cloneUrl, wantCloneErr, repoLocalPath, wantLocalPathErr)
+}
+
+func getRepositoryRemote(t *testing.T,
+	remote string,
+	cloneUrl string,
+	wantCloneErr bool,
+	repoLocalPath string,
+	wantLocalPathErr bool,
+) (git.Repository, bool) {
+	var gotCloneErr error
+	var gotLocalErr error
+	var gotResult git.Repository
+	if cloneUrl != "" {
+		result, errClone := git.NewRepositoryRemoteClone(
+			remote,
+			memory.NewStorage(), nil, &goGit.CloneOptions{
+				URL: cloneUrl,
+			})
+		gotResult = result
+		gotCloneErr = errClone
+	}
+
+	if repoLocalPath != "" {
+		result, errPath := git.NewRepositoryRemoteByPath(remote, repoLocalPath)
+		gotResult = result
+		gotLocalErr = errPath
+	}
+
+	// verify FetchTags
+	assert.Equal(t, wantCloneErr, gotCloneErr != nil)
+	assert.Equal(t, wantLocalPathErr, gotLocalErr != nil)
+	if wantCloneErr {
+		t.Logf("gotErr: %v", gotCloneErr)
+		return nil, true
+	}
+	if wantLocalPathErr {
+		t.Logf("gotErr: %v", gotLocalErr)
+		return nil, true
+	}
+	return gotResult, false
+}
+
 func TestNewRepositoryByPath(t *testing.T) {
 	currentFolderPath, err := getCurrentFolderPath()
 	if err != nil {
@@ -74,6 +123,99 @@ func TestNewRepositoryClone(t *testing.T) {
 			commits, errLog := gotResult.Log("", "")
 			assert.Equal(t, tc.logErr, errLog)
 			t.Logf("git commits len: %v", len(commits))
+		})
+	}
+}
+
+func TestCommitLatestTag(t *testing.T) {
+	// mock CommitLatestTagByTime
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
+	tests := []struct {
+		name string
+
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+	}{
+		{
+			name:     "has tag clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "has tag local",
+			repoLocalPath: gitRootPath,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do CommitLatestTagByTime
+			gotResult, done := getRepository(t, tc.cloneUrl, tc.wantCloneErr, tc.repoLocalPath, tc.wantLocalPathErr)
+			if done {
+				return
+			}
+
+			commitLatestTag, gotLatestTagErr := gotResult.CommitLatestTagByTime()
+
+			if gotLatestTagErr != nil {
+				t.Logf("gotLatestTagErr %v", gotLatestTagErr)
+				return
+			}
+
+			t.Logf("commitLatestTag Message %s", commitLatestTag.Message)
+			hash := commitLatestTag.Hash
+			assert.False(t, hash.IsZero())
+			t.Logf("commitLatestTag Hash %s", hash.String())
+		})
+	}
+}
+
+func TestFetchTags(t *testing.T) {
+	// mock FetchTags
+	currentFolderPath, err := getCurrentFolderPath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRootPath := filepath.Dir(currentFolderPath)
+	tests := []struct {
+		name string
+
+		cloneUrl     string
+		wantCloneErr bool
+
+		repoLocalPath    string
+		wantLocalPathErr bool
+
+		wantFetchTagsErr bool
+	}{
+		{
+			name:     "clone",
+			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
+		},
+		{
+			name:          "local",
+			repoLocalPath: gitRootPath,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// do FetchTags
+			gotResult, done := getRepository(t, tc.cloneUrl, tc.wantCloneErr, tc.repoLocalPath, tc.wantLocalPathErr)
+			if done {
+				return
+			}
+
+			gotFetchTagsErr := gotResult.FetchTags()
+			if gotFetchTagsErr != nil {
+				t.Logf("gotFetchTagsErr err: %v", gotFetchTagsErr)
+			}
 		})
 	}
 }
@@ -230,146 +372,6 @@ func TestCommitTagSearchByFirstLine(t *testing.T) {
 				return
 			}
 			assert.Equal(t, tc.wantTagHash, commit.Hash.String())
-		})
-	}
-}
-
-func TestCommitLatestTag(t *testing.T) {
-	// mock CommitLatestTagByTime
-	currentFolderPath, err := getCurrentFolderPath()
-	if err != nil {
-		t.Fatal(err)
-	}
-	gitRootPath := filepath.Dir(currentFolderPath)
-	tests := []struct {
-		name string
-
-		cloneUrl     string
-		wantCloneErr bool
-
-		repoLocalPath    string
-		wantLocalPathErr bool
-	}{
-		{
-			name:     "has tag clone",
-			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
-		},
-		{
-			name:          "has tag local",
-			repoLocalPath: gitRootPath,
-		},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-
-			// do CommitLatestTagByTime
-			var gotCloneErr error
-			var gotLocalErr error
-			var gotResult git.Repository
-			if tc.cloneUrl != "" {
-				result, err := git.NewRepositoryClone(memory.NewStorage(), nil, &goGit.CloneOptions{
-					URL: tc.cloneUrl,
-				})
-				gotResult = result
-				gotCloneErr = err
-			}
-
-			if tc.repoLocalPath != "" {
-				result, err := git.NewRepositoryByPath(tc.repoLocalPath)
-				gotResult = result
-				gotLocalErr = err
-			}
-
-			// verify CommitLatestTagByTime
-			assert.Equal(t, tc.wantCloneErr, gotCloneErr != nil)
-			assert.Equal(t, tc.wantLocalPathErr, gotLocalErr != nil)
-			if tc.wantCloneErr {
-				t.Logf("gotErr: %v", gotCloneErr)
-				return
-			}
-			if tc.wantLocalPathErr {
-				t.Logf("gotErr: %v", gotLocalErr)
-				return
-			}
-
-			commitLatestTag, gotLatestTagErr := gotResult.CommitLatestTagByTime()
-
-			if gotLatestTagErr != nil {
-				t.Logf("gotLatestTagErr %v", gotLatestTagErr)
-				return
-			}
-
-			t.Logf("commitLatestTag Message %s", commitLatestTag.Message)
-			hash := commitLatestTag.Hash
-			assert.False(t, hash.IsZero())
-			t.Logf("commitLatestTag Hash %s", hash.String())
-		})
-	}
-}
-
-func TestFetchTags(t *testing.T) {
-	// mock FetchTags
-	currentFolderPath, err := getCurrentFolderPath()
-	if err != nil {
-		t.Fatal(err)
-	}
-	gitRootPath := filepath.Dir(currentFolderPath)
-	tests := []struct {
-		name         string
-		cloneUrl     string
-		wantCloneErr bool
-
-		repoLocalPath    string
-		wantLocalPathErr bool
-
-		wantFetchTagsErr bool
-	}{
-		{
-			name:     "clone",
-			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
-		},
-		{
-			name:          "local",
-			repoLocalPath: gitRootPath,
-		},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-
-			// do FetchTags
-			var gotCloneErr error
-			var gotLocalErr error
-			var gotResult git.Repository
-			if tc.cloneUrl != "" {
-				result, err := git.NewRepositoryClone(memory.NewStorage(), nil, &goGit.CloneOptions{
-					URL: tc.cloneUrl,
-				})
-				gotResult = result
-				gotCloneErr = err
-			}
-
-			if tc.repoLocalPath != "" {
-				result, err := git.NewRepositoryByPath(tc.repoLocalPath)
-				gotResult = result
-				gotLocalErr = err
-			}
-
-			// verify FetchTags
-			assert.Equal(t, tc.wantCloneErr, gotCloneErr != nil)
-			assert.Equal(t, tc.wantLocalPathErr, gotLocalErr != nil)
-			if tc.wantCloneErr {
-				t.Logf("gotErr: %v", gotCloneErr)
-				return
-			}
-			if tc.wantLocalPathErr {
-				t.Logf("gotErr: %v", gotLocalErr)
-				return
-			}
-
-			gotFetchTagsErr := gotResult.FetchTags()
-			if gotFetchTagsErr != nil {
-				t.Logf("gotFetchTagsErr err: %v", gotFetchTagsErr)
-			}
 		})
 	}
 }
