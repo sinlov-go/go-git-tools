@@ -78,6 +78,12 @@ func TestNewRepositoryByPath(t *testing.T) {
 	} else {
 		t.Logf("commits len %d", len(commits))
 	}
+	commits, err = repository.Log("", "96ab87d892a3be15a7764e6ae5555e4dc735a1c7")
+	if err != nil {
+		t.Logf("get commits err %s", err)
+	} else {
+		t.Logf("commits len %d", len(commits))
+	}
 }
 
 func TestNewRepositoryClone(t *testing.T) {
