@@ -128,7 +128,8 @@ func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
 				return errRR
 			}
 			cIter, errLog := r.gitRepo.Log(&goGit.LogOptions{
-				From: *revision,
+				From:  *revision,
+				Order: goGit.LogOrderCommitterTime,
 			})
 			if errLog != nil {
 				return errLog
@@ -171,7 +172,8 @@ func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
 			return errRR
 		}
 		cIter, errLog := r.gitRepo.Log(&goGit.LogOptions{
-			From: *revision,
+			From:  *revision,
+			Order: goGit.LogOrderCommitterTime,
 		})
 		if errLog != nil {
 			return errLog
@@ -390,7 +392,8 @@ type Repository interface {
 
 func (r *repo) logWithStopFn(fromHash *plumbing.Hash, beginFn, endFn stopFn) ([]Commit, error) {
 	cIter, err := r.gitRepo.Log(&goGit.LogOptions{
-		From: *fromHash,
+		From:  *fromHash,
+		Order: goGit.LogOrderCommitterTime,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to git log: %w", err)
