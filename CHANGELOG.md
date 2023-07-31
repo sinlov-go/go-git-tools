@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/sinlov-go/go-git-tools/compare/v1.8.1...v1.9.0) (2023-07-31)
+
+
+### 👷‍ Build System
+
+* **deps:** bump github.com/go-git/go-git/v5 from 5.7.0 to 5.8.0 ([eb83869](https://github.com/sinlov-go/go-git-tools/commit/eb8386992105a6dba1e7ea81f3f500984c3aed33))
+* **deps:** bump github.com/go-git/go-git/v5 from 5.8.0 to 5.8.1 ([a5b769e](https://github.com/sinlov-go/go-git-tools/commit/a5b769ea0e61bf8afd78476780b96dee8ed4605b))
+
+
+### ✨ Features
+
+* let git log Order by LogOrderCommitterTime ([9c8b68f](https://github.com/sinlov-go/go-git-tools/commit/9c8b68f682f9bf3265198bd631e215efc3de3e82))
+
 ### [1.8.1](https://github.com/sinlov-go/go-git-tools/compare/v1.8.0...v1.8.1) (2023-07-21)
 
 
