@@ -1,6 +1,6 @@
 module github.com/sinlov-go/go-git-tools
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-git/go-billy/v5 v5.5.0
