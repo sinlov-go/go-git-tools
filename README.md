@@ -65,7 +65,7 @@ $ echo "go mod vendor"
 | lib                                 | version |
 |:------------------------------------|:--------|
 | https://github.com/stretchr/testify | v1.8.4  |
-| https://github.com/go-git/go-git    | v5.7.0  |
+| https://github.com/go-git/go-git    | v5.10.1 |
 | https://github.com/whilp/git-urls   | v1.0.0  |
 
 ## usage
