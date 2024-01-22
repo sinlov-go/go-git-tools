@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [convention-change-log](https://github.com/convention-change/convention-change-log) for commit guidelines.
 
+## [1.11.0](https://github.com/sinlov-go/go-git-tools/compare/1.10.0...v1.11.0) (2024-01-22)
+
+### ✨ Features
+
+* change to github.com/chainguard-dev/git-urls v1.0.2 and update new action pipline ([c70694d6](https://github.com/sinlov-go/go-git-tools/commit/c70694d6ab1bbcaf3b6d20504d4d0480387eeb62))
+
+### 👷‍ Build System
+
+* bump actions/setup-go from 4 to 5 ([bae845ae](https://github.com/sinlov-go/go-git-tools/commit/bae845aec62209ec797acd18ddafad4c1ac55a8f))
+
+* bump actions/upload-artifact from 3 to 4 ([2a4088a0](https://github.com/sinlov-go/go-git-tools/commit/2a4088a040c999c7d5dcbd0afc1e3df97211f69b))
+
+* bump actions/download-artifact from 3 to 4 ([6ee22d40](https://github.com/sinlov-go/go-git-tools/commit/6ee22d403d79325dccb81881986257822c41073b))
+
+* bump github.com/go-git/go-git/v5 from 5.10.1 to 5.11.0 ([88788203](https://github.com/sinlov-go/go-git-tools/commit/88788203f2e80d19c0cc3b81ea9c0b3f5276ef71))
+
+* change golangci/golangci-lint-action use version latest ([f05cc81f](https://github.com/sinlov-go/go-git-tools/commit/f05cc81fceb1ab79df49dbfb70d270457a96b066))
+
 ## [1.10.0](https://github.com/sinlov-go/go-git-tools/compare/1.9.1...v1.10.0) (2023-12-05)
 
 ### ✨ Features
