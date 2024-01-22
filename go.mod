@@ -3,10 +3,10 @@ module github.com/sinlov-go/go-git-tools
 go 1.19
 
 require (
+	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/go-git/go-billy/v5 v5.5.0
 	github.com/go-git/go-git/v5 v5.11.0
 	github.com/stretchr/testify v1.8.4
-	github.com/whilp/git-urls v1.0.0
 )
 
 require (

@@ -2,12 +2,13 @@ package git
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
+	gitUrls "github.com/chainguard-dev/git-urls"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/sinlov-go/go-git-tools/git_info"
-	gitUrls "github.com/whilp/git-urls"
-	"strings"
-	"time"
 
 	goGit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"

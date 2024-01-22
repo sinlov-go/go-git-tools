@@ -2,24 +2,25 @@ package git_info
 
 import (
 	"fmt"
-	"github.com/go-git/go-git/v5"
-	gitConfig "github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/plumbing"
-	gitUrls "github.com/whilp/git-urls"
 	"net/url"
 	"strings"
+
+	gitUrls "github.com/chainguard-dev/git-urls"
+	goGit "github.com/go-git/go-git/v5"
+	gitConfig "github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 // IsPathUnderGitManagement
 //
 //	@Description: IsPathUnderGitManagement check path is under git management
 func IsPathUnderGitManagement(path string) bool {
-	_, err := git.PlainOpen(path)
+	_, err := goGit.PlainOpen(path)
 	return err == nil
 }
 
 func IsPathGitManagementRoot(path string) (bool, error) {
-	repository, err := git.PlainOpen(path)
+	repository, err := goGit.PlainOpen(path)
 	if err != nil {
 		return false, fmt.Errorf("IsPathGitManagementRoot can not open repository at path %s , err: %s", path, err)
 	}
@@ -44,7 +45,7 @@ func IsPathGitManagementRoot(path string) (bool, error) {
 //
 // more use See https://github.com/go-git/go-git/blob/v5.7.0/config/config_test.go#L18
 func RepositoryConfigPath(path string) (*gitConfig.Config, error) {
-	repository, err := git.PlainOpen(path)
+	repository, err := goGit.PlainOpen(path)
 	if err != nil {
 		return nil, fmt.Errorf("RepositoryConfigPath can not open repository at path %s , err: %s", path, err)
 	}
@@ -132,7 +133,7 @@ func RepositoryFistRemoteInfo(path string, remote string) (*GitRemoteInfo, error
 }
 
 func RepositoryHeadByPath(path string) (*plumbing.Reference, error) {
-	repository, err := git.PlainOpen(path)
+	repository, err := goGit.PlainOpen(path)
 	if err != nil {
 		return nil, fmt.Errorf("RepositoryHeadByPath can not open repository at path %s , err: %s", path, err)
 	}
@@ -144,7 +145,7 @@ func RepositoryHeadByPath(path string) (*plumbing.Reference, error) {
 }
 
 func RepositoryNowBranchByPath(path string) (string, error) {
-	repository, err := git.PlainOpen(path)
+	repository, err := goGit.PlainOpen(path)
 	if err != nil {
 		return "", fmt.Errorf("RepositoryNowBranchByPath can not open repository at path %s , err: %s", path, err)
 	}
