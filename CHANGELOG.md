@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [convention-change-log](https://github.com/convention-change/convention-change-log) for commit guidelines.
 
+## [1.12.0](https://github.com/sinlov-go/go-git-tools/compare/1.11.0...v1.12.0) (2024-05-17)
+
+### ✨ Features
+
+* add `SetProxyOptions` and `SetAuthMethod` and `Check*` for local ([b820153c](https://github.com/sinlov-go/go-git-tools/commit/b820153c483e3c115b074298b2a1b9e1703fcfce)), feat [#24](https://github.com/sinlov-go/go-git-tools/issues/24)
+
+* update full build pipline ([ccf28a34](https://github.com/sinlov-go/go-git-tools/commit/ccf28a34b7b95f6b621211d8abc955f413a359c2))
+
+### ♻ Refactor
+
+* let method to repository_impl.go ([7f7f2615](https://github.com/sinlov-go/go-git-tools/commit/7f7f2615de2306733f820ad06537d1c34a3e1876))
+
+* update exmplate_test ([df8e3780](https://github.com/sinlov-go/go-git-tools/commit/df8e378061e9aff27a718690a5e1ab0178ed8b3b))
+
+### 👷‍ Build System
+
+* bump golangci/golangci-lint-action from 5 to 6 ([54465509](https://github.com/sinlov-go/go-git-tools/commit/54465509ec07f1eb7baf1afa172bc63242c34217))
+
+* bump codecov/codecov-action from 4.3.0 to 4.4.0 ([095e0ae2](https://github.com/sinlov-go/go-git-tools/commit/095e0ae285d2a9301843190abd303e08ca24707d))
+
+* bump convention-change/conventional-version-check ([cf016366](https://github.com/sinlov-go/go-git-tools/commit/cf016366d71d89b40419dd2c28535e59cf17c39a))
+
+* bump codecov/codecov-action from 4.1.1 to 4.3.0 ([b5e553fe](https://github.com/sinlov-go/go-git-tools/commit/b5e553fe3f58b84888c56dd0f4e20d9f9ffb1ca6))
+
+* bump golangci/golangci-lint-action from 4 to 5 ([87369c37](https://github.com/sinlov-go/go-git-tools/commit/87369c37993a3015ceddae570be6e4815e52e8e1))
+
+* bump codecov/codecov-action from 4.1.0 to 4.1.1 ([964a8c4e](https://github.com/sinlov-go/go-git-tools/commit/964a8c4e4c4b86649bec92166086a3efe3d5e2bb))
+
+* bump github.com/go-git/go-git/v5 from 5.11.0 to 5.12.0 ([d72a41e6](https://github.com/sinlov-go/go-git-tools/commit/d72a41e6fc011a06eb60a4a56acc22edf256189b))
+
+* bump codecov/codecov-action from 4.0.0 to 4.1.0 ([bce115c6](https://github.com/sinlov-go/go-git-tools/commit/bce115c6dd4a43bcf333a9d44331fa761b3865e4))
+
+* bump golangci/golangci-lint-action from 3 to 4 ([1983ebef](https://github.com/sinlov-go/go-git-tools/commit/1983ebef0ed0d6c48480ea7576a309037be23fb9))
+
+* bump codecov/codecov-action from 3.1.4 to 4.0.0 ([7614df32](https://github.com/sinlov-go/go-git-tools/commit/7614df32e6105c94f7b32e95f7c1f30a25c7dea3))
+
+* changet to tag_changes: ${{ needs.version.outputs.cc_changes }} ([65a1ff5b](https://github.com/sinlov-go/go-git-tools/commit/65a1ff5b5fb10946debc4702a95184c862e7538e))
+
 ## [1.11.0](https://github.com/sinlov-go/go-git-tools/compare/1.10.0...v1.11.0) (2024-01-22)
 
 ### ✨ Features
