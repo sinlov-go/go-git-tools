@@ -13,17 +13,6 @@
 
 - this project used to management git local project with golang
 
-## Contributing
-
-[![Contributor Covenant](https://img.shields.io/badge/contributor%20covenant-v1.4-ff69b4.svg)](.github/CONTRIBUTING_DOC/CODE_OF_CONDUCT.md)
-[![GitHub contributors](https://img.shields.io/github/contributors/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools/graphs/contributors)
-
-We welcome community contributions to this project.
-
-Please read [Contributor Guide](.github/CONTRIBUTING_DOC/CONTRIBUTING.md) for more information on how to get started.
-
-请阅读有关 [贡献者指南](.github/CONTRIBUTING_DOC/zh-CN/CONTRIBUTING.md) 以获取更多如何入门的信息
-
 ## depends
 
 in go mod project
@@ -55,89 +44,89 @@ $ echo "go mod vendor"
 
 ## Features
 
-- [ ] more perfect test case coverage
-- [ ] more perfect benchmark case
-
-## env
-
-- minimum go version: go 1.19
-- change `go 1.19`, `^1.19`, `1.19.13` to new go version
-
-### libs
-
-| lib                                 | version |
-|:------------------------------------|:--------|
-| https://github.com/stretchr/testify | v1.8.4  |
-| https://github.com/go-git/go-git    | v5.10.1 |
-| https://github.com/chainguard-dev/git-urls   | v1.0.2  |
-
-## usage
+### pkg `github.com/sinlov-go/go-git-tools/git`
 
 ```go
-package main
+package foo
+
+import (
+	"github.com/sinlov-go/go-git-tools/git"
+)
+```
+
+- [x] `git.NewRepositoryByPath(gitRootPath)` to load local git project
+    - [x] `HeadReference() (*plumbing.Reference, error)`  get head reference
+    - [x] `HeadBranchName() (string, error)` get head branch name
+    - [x] `CheckHasSubmodules() (bool, error)` check has submodules
+    - [x] `CheckSubmodulesIsDirty() (bool, error)` check submodules is dirty
+    - [x] `CheckLocalBranchIsDirty() (bool, error)` check local branch is dirty
+    - [x] `Log(fromRev, toRev string) ([]Commit, error)` return all commits between <from revision> and <to revision>
+    - [x] `CommitLatestTagByTime() (*Commit, error)` return latest tag commit
+    - [x] `CommitTagSearchByName(tagName string) (*Commit, error)` return tag commit
+    - [x] `CommitTagSearchByFirstLine(firstLine string) (*Commit, error)` return tag commit
+    - [x] `Commit(commitMessage string, paths ...string) error` commit
+
+- [x] support setting ` SetAuthMethod(auth transport.AuthMethod)` and `SetAuthMethod(auth transport.AuthMethod)` for
+  private git remote
+
+```go
+package foo_test
+
+func TestSetAuth(t *testing.T) {
+	const envFlag = "ENV_TEST_REPO_SET_AUTH"
+	valEnvPath := env_kit.FetchOsEnvStr(envFlag, "")
+	if valEnvPath == "" {
+		t.Skipf("env is empty: %s", envFlag)
+	}
+
+	const envFlagKeyPath = "ENV_TEST_REPO_SET_AUTH_KEY_PATH"
+	valSshKeyPath := env_kit.FetchOsEnvStr(envFlagKeyPath, "")
+	if valSshKeyPath == "" {
+		t.Skipf("env is empty: %s", envFlagKeyPath)
+	}
+
+	const envFlagKeyPassword = "ENV_TEST_REPO_SET_AUTH_KEY_PASS_WORD"
+	valSshKeyPassWord := env_kit.FetchOsEnvStr(envFlagKeyPassword, "")
+
+	repository, err := NewRepositoryByPath(valEnvPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	auth, err := ssh.NewPublicKeysFromFile("git", valSshKeyPath, valSshKeyPassWord)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	repository.SetAuth(auth)
+
+	err = repository.PullOrigin()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+```
+
+### pkg `github.com/sinlov-go/go-git-tools/git_info`
+
+```go
+package foo
 
 import (
 	"github.com/sinlov-go/go-git-tools/git_info"
-	"testing"
 )
-
-func TestFoo(t *testing.T) {
-	var projectRootPath = "/Users/sinlov/go/src/github.com/sinlov-go/go-git-tools"
-	url, err := git_info.RepositoryFistRemoteInfo(projectRootPath, "origin")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("url.Host: %s", url.Host)
-	t.Logf("url.User: %s", url.User)
-	t.Logf("url.Repo: %s", url.Repo)
-
-	branchByPath, err := git_info.RepositoryNowBranchByPath(projectRootPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("branchByPath: %s", branchByPath)
-}
-
 ```
+
+- [x] `git_info` package to get info of repository
+    - [x] `IsPathUnderGitManagement` check path is under git management
+    - [x] `RepositoryFistRemoteInfo` get repository first remote info
+    - [x] `RepositoryHeadByPath` get repository head by local path
+    - [x] `RepositoryNowBranchByPath` get repository now branch by local path
+    - [x] `RepositoryConfigPath` get repository config by local path
+
+- [ ] more perfect test case coverage
+- [ ] more perfect benchmark case
 
 # dev
 
-```bash
-# It needs to be executed after the first use or update of dependencies.
-$ make init dep
-```
-
-- test code
-
-```bash
-$ make test testBenchmark
-```
-
-add main.go file and run
-
-```bash
-# run at env dev use cmd/main.go
-$ make dev
-```
-
-- ci to fast check
-
-```bash
-# check style at local
-$ make style
-
-# run ci at local
-$ make ci
-```
-
-## docker
-
-```bash
-# then test build as test/Dockerfile
-$ make dockerTestRestartLatest
-# clean test build
-$ make dockerTestPruneLatest
-
-# more info see
-$ make helpDocker
-```
+- see [doc/dev.md](doc/dev.md)

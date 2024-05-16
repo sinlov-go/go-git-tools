@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/sinlov-go/go-git-tools/git_info"
 
@@ -22,6 +23,9 @@ const (
 type repo struct {
 	gitRepo    *goGit.Repository
 	remoteName string
+
+	transportAuthMethod   *transport.AuthMethod
+	transportProxyOptions *transport.ProxyOptions
 }
 
 // Repository is an abstraction for git-repository
@@ -30,9 +34,11 @@ type Repository interface {
 
 	HeadBranchName() (string, error)
 
-	Log(fromRev, toRev string) ([]Commit, error)
+	CheckHasSubmodules() (bool, error)
+	CheckSubmodulesIsDirty() (bool, error)
+	CheckLocalBranchIsDirty() (bool, error)
 
-	FetchTags() error
+	Log(fromRev, toRev string) ([]Commit, error)
 
 	CommitLatestTagByTime() (*Commit, error)
 	CommitTagSearchByName(tagName string) (*Commit, error)
@@ -42,6 +48,12 @@ type Repository interface {
 	TagLatestByCommitTime() (*object.Tag, error)
 
 	RemoteInfo(remoteName string, configUrlIndex int) (*git_info.GitRemoteInfo, error)
+
+	SetProxyOptions(options transport.ProxyOptions)
+	SetAuthMethod(auth transport.AuthMethod)
+
+	PullOrigin() error
+	FetchTags() error
 }
 
 // NewRepositoryByPath return Repository from path

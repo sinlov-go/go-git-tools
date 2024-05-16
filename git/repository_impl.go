@@ -1,26 +1,29 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"github.com/chainguard-dev/git-urls"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/storer"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/sinlov-go/go-git-tools/git_info"
 	"strings"
 	"time"
 )
 
+// HeadReference
+// get head reference
 func (r *repo) HeadReference() (*plumbing.Reference, error) {
 	return r.gitRepo.Head()
 }
 
+// HeadBranchName
+// get head branch name
 func (r *repo) HeadBranchName() (string, error) {
 	referenceHead, err := r.HeadReference()
-	if err != nil {
-		return "", err
-	}
 	if err != nil {
 		return "", fmt.Errorf("HeadBranchName can not get head: %s", err)
 	}
@@ -29,6 +32,85 @@ func (r *repo) HeadBranchName() (string, error) {
 		return "", fmt.Errorf("HeadBranchName head is not branch: %s", referenceName.String())
 	}
 	return referenceName.Short(), nil
+}
+
+// CheckHasSubmodules
+// check has submodules
+// no has submodules must return false, nil
+func (r *repo) CheckHasSubmodules() (bool, error) {
+	if r.gitRepo == nil {
+		return true, fmt.Errorf("check has submodules error, git repo not init, or can not read")
+	}
+	worktree, err := r.gitRepo.Worktree()
+	if err != nil {
+		return true, fmt.Errorf("check has submodules error, want get work tree err: %v", err)
+	}
+
+	submodules, err := worktree.Submodules()
+	if err != nil {
+		return true, fmt.Errorf("check has submodules error, want get submodules err: %v", err)
+	}
+
+	return len(submodules) > 0, nil
+}
+
+// CheckSubmodulesIsDirty
+// check submodules is dirty.
+// Warning submodule version must same as .gitmodules record
+// like run as: git submodule status --recursive
+// Fix dirty use: git submodule update --init --recursive
+func (r *repo) CheckSubmodulesIsDirty() (bool, error) {
+	if r.gitRepo == nil {
+		return true, fmt.Errorf("check submodules is dirty error, git repo not init, or can not read")
+	}
+	worktree, err := r.gitRepo.Worktree()
+	if err != nil {
+		return true, fmt.Errorf("check submodules is dirty error, want get work tree err: %v", err)
+	}
+
+	submodules, err := worktree.Submodules()
+	if err != nil {
+		return true, fmt.Errorf("check submodules is dirty error, want get submodules err: %v", err)
+	}
+	if len(submodules) == 0 {
+		return true, fmt.Errorf("check submodules is dirty error, now repo not has no submodules")
+	}
+	var isDirty bool
+	var errDirty error
+	for _, submodule := range submodules {
+		status, errSubModule := submodule.Status()
+		if errSubModule != nil {
+			return true, fmt.Errorf("check submodules is dirty error, want get submodule status err: %v", errSubModule)
+		}
+		if !status.IsClean() {
+			isDirty = true
+			errDirty = fmt.Errorf("check submodules is dirty, URL: %s status: %v", submodule.Config().URL, status.String())
+			break
+		}
+	}
+	return isDirty, errDirty
+}
+
+// CheckLocalBranchIsDirty
+// find dirty file will return true and error is nil.
+// Like run cmd as: git status --porcelain
+func (r *repo) CheckLocalBranchIsDirty() (bool, error) {
+	if r.gitRepo == nil {
+		return true, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
+	}
+	worktree, err := r.gitRepo.Worktree()
+	if err != nil {
+		return true, fmt.Errorf("check local branch is dirty error, want get work tree err: %v", err)
+	}
+
+	status, errStatus := worktree.Status()
+	if errStatus != nil {
+		return true, fmt.Errorf("want get work tree status err: %v", errStatus)
+	}
+	if status.IsClean() {
+		return false, nil
+	}
+	return true, nil
 }
 
 // Log return all commits between <from revision> and <to revision>
@@ -52,33 +134,6 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	}
 
 	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
-}
-
-func (r *repo) FetchTags() error {
-	//remotes, err := r.gitRepo.Remotes()
-	//if err != nil {
-	//	return err
-	//}
-	//if len(remotes) == 0 {
-	//	return fmt.Errorf("no remote found")
-	//}
-	//remote := remotes[0]
-	remote, err := r.gitRepo.Remote(r.remoteName)
-	if err != nil {
-		return err
-	}
-	errFetch := remote.Fetch(&git.FetchOptions{
-		RemoteName: r.remoteName,
-		Tags:       git.AllTags,
-	})
-	if errFetch != nil {
-		if errFetch == git.NoErrAlreadyUpToDate {
-			return nil
-		}
-		return fmt.Errorf("failed to fetch --tags err: %w", errFetch)
-	}
-
-	return nil
 }
 
 func (r *repo) CommitLatestTagByTime() (*Commit, error) {
@@ -390,4 +445,99 @@ func newIterFn(commits *[]Commit, beginFn, endFn stopFn) func(c *object.Commit) 
 
 		return nil
 	}
+}
+
+// SetAuthMethod
+// auth transport.AuthMethod
+//
+//	auth, err := ssh.NewPublicKeysFromFile("git", valSshKeyPath, valSshKeyPassWord)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	repository.SetAuthMethod(auth)
+func (r *repo) SetAuthMethod(auth transport.AuthMethod) {
+	r.transportAuthMethod = &auth
+}
+
+// SetProxyOptions
+// options transport.ProxyOptions
+func (r *repo) SetProxyOptions(options transport.ProxyOptions) {
+	r.transportProxyOptions = &options
+}
+
+// PullOrigin
+// warning: direct support public repository, private repository must use SetAuth before.
+// like: git pull origin
+func (r *repo) PullOrigin() error {
+	if r.gitRepo == nil {
+		return fmt.Errorf("git pull origin error, repo not init, or can not read")
+	}
+	worktree, err := r.gitRepo.Worktree()
+	if err != nil {
+		return fmt.Errorf("git pull origin error, want get work tree err: %v", err)
+	}
+
+	options := git.PullOptions{
+		RemoteName: r.remoteName,
+	}
+
+	if r.transportAuthMethod != nil {
+		options.Auth = *r.transportAuthMethod
+	}
+
+	if r.transportProxyOptions != nil {
+		options.ProxyOptions = *r.transportProxyOptions
+	}
+
+	errPull := worktree.Pull(&options)
+	if errPull != nil {
+		if errors.Is(errPull, git.NoErrAlreadyUpToDate) {
+			return nil
+		}
+		return errPull
+	}
+
+	return nil
+}
+
+// FetchTags
+// warning: direct support public repository, private repository must use SetAuth before.
+// fetch tags
+// like run as: git fetch --tags
+func (r *repo) FetchTags() error {
+	//remotes, err := r.gitRepo.Remotes()
+	//if err != nil {
+	//	return err
+	//}
+	//if len(remotes) == 0 {
+	//	return fmt.Errorf("no remote found")
+	//}
+	//remote := remotes[0]
+	remote, err := r.gitRepo.Remote(r.remoteName)
+	if err != nil {
+		return fmt.Errorf("failed fetch --tags to find remote %w", err)
+	}
+	options := git.FetchOptions{
+		RemoteName: r.remoteName,
+		Tags:       git.AllTags,
+	}
+
+	if r.transportAuthMethod != nil {
+		options.Auth = *r.transportAuthMethod
+	}
+
+	if r.transportProxyOptions != nil {
+		options.ProxyOptions = *r.transportProxyOptions
+	}
+
+	errFetch := remote.Fetch(&options)
+	if errFetch != nil {
+		if errors.Is(errFetch, git.NoErrAlreadyUpToDate) {
+			return nil
+		}
+		return fmt.Errorf("failed to fetch --tags err: %w", errFetch)
+	}
+
+	return nil
 }
