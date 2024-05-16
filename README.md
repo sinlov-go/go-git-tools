@@ -1,10 +1,13 @@
 [![ci](https://github.com/sinlov-go/go-git-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/sinlov-go/go-git-tools/actions/workflows/ci.yml)
-[![license](https://img.shields.io/github/license/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools)
+
 [![go mod version](https://img.shields.io/github/go-mod/go-version/sinlov-go/go-git-tools?label=go.mod)](https://github.com/sinlov-go/go-git-tools)
-[![GoDoc](https://godoc.org/github.com/sinlov-go/go-git-tools?status.png)](https://godoc.org/github.com/sinlov-go/go-git-tools/)
-[![GoReportCard](https://goreportcard.com/badge/github.com/sinlov-go/go-git-tools)](https://goreportcard.com/report/github.com/sinlov-go/go-git-tools)
-[![codecov](https://codecov.io/gh/sinlov-go/go-git-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/sinlov-go/go-git-tools)
+[![GoDoc](https://godoc.org/github.com/sinlov-go/go-git-tools?status.png)](https://godoc.org/github.com/sinlov-go/go-git-tools)
+[![goreportcard](https://goreportcard.com/badge/github.com/sinlov-go/go-git-tools)](https://goreportcard.com/report/github.com/sinlov-go/go-git-tools)
+
+[![GitHub license](https://img.shields.io/github/license/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools)
+[![GitHub latest SemVer tag)](https://img.shields.io/github/v/tag/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools/tags)
 [![GitHub release)](https://img.shields.io/github/v/release/sinlov-go/go-git-tools)](https://github.com/sinlov-go/go-git-tools/releases)
+[![codecov](https://codecov.io/gh/sinlov-go/go-git-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/sinlov-go/go-git-tools)
 
 ## for what
 
