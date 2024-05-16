@@ -18,7 +18,7 @@ env:
   DIST_BINARY_NAME: go-git-tools # to change your binary name, windows will auto add .exe
   DIST_BUILD_ENTRANCE: cmd/go-git-tools/main.go # to change your build entrance
 
-permissions:
+permissions: # https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#permissions
   contents: write
 
 jobs:
