@@ -60,6 +60,9 @@ import (
     - [x] `CheckHasSubmodules() (bool, error)` check has submodules
     - [x] `CheckSubmodulesIsDirty() (bool, error)` check submodules is dirty
     - [x] `CheckLocalBranchIsDirty() (bool, error)` check local branch is dirty
+    - [x] `IsCitCmdAvailable() bool` check git command is available (v1.13+)
+    - [x] `CheckWorkTreeIsDirtyWithGitCmd() (bool, error)` check work tree is dirty by `git status --porcelain` (v1.13+)
+- [x] get log or commit
     - [x] `Log(fromRev, toRev string) ([]Commit, error)` return all commits between <from revision> and <to revision>
     - [x] `CommitLatestTagByTime() (*Commit, error)` return latest tag commit
     - [x] `CommitTagSearchByName(tagName string) (*Commit, error)` return tag commit
