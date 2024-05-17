@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/storer"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/sinlov-go/go-git-tools/git_info"
+	"github.com/sinlov-go/go-git-tools/internal/command_plus"
 	"strings"
 	"time"
 )
@@ -96,20 +97,54 @@ func (r *repo) CheckSubmodulesIsDirty() (bool, error) {
 // Like run cmd as: git status --porcelain
 func (r *repo) CheckLocalBranchIsDirty() (bool, error) {
 	if r.gitRepo == nil {
-		return true, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
+		return false, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
 	}
 	worktree, err := r.gitRepo.Worktree()
 	if err != nil {
-		return true, fmt.Errorf("check local branch is dirty error, want get work tree err: %v", err)
+		return false, fmt.Errorf("check local branch is dirty error, want get work tree err: %v", err)
 	}
 
 	status, errStatus := worktree.Status()
 	if errStatus != nil {
-		return true, fmt.Errorf("want get work tree status err: %v", errStatus)
+		return false, fmt.Errorf("want get work tree status err: %v", errStatus)
 	}
 	if status.IsClean() {
 		return false, nil
 	}
+	return true, nil
+}
+
+// IsCitCmdAvailable
+// check git command is available
+func (r *repo) IsCitCmdAvailable() bool {
+	cmdP := command_plus.NewCmd("git")
+	return cmdP.IsCliAvailable()
+}
+
+// CheckWorkTreeIsDirtyWithGitCmd
+// check work tree is dirty by run: git status --porcelain
+func (r *repo) CheckWorkTreeIsDirtyWithGitCmd() (bool, error) {
+	if r.gitRepo == nil {
+		return false, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
+	}
+	worktree, errWorkTree := r.gitRepo.Worktree()
+	if errWorkTree != nil {
+		return false, fmt.Errorf("want get work tree err: %v", errWorkTree)
+	}
+	rootPath := worktree.Filesystem.Root()
+
+	cmdP := command_plus.NewCmd("git",
+		command_plus.WithCommandArgs([]string{"status", "--porcelain"}),
+		command_plus.WithRunPath(rootPath),
+	)
+	errExec := cmdP.Exec()
+	if errExec != nil {
+		return true, errExec
+	}
+	if strings.TrimSpace(cmdP.ExecStdOut()) == "" {
+		return false, nil
+	}
+
 	return true, nil
 }
 
@@ -136,6 +171,8 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
 }
 
+// CommitLatestTagByTime
+// get commit by tag latest by commit time
 func (r *repo) CommitLatestTagByTime() (*Commit, error) {
 	tagLatest, err := r.TagLatestByCommitTime()
 	if err != nil {
@@ -150,6 +187,8 @@ func (r *repo) CommitLatestTagByTime() (*Commit, error) {
 	return &commit, nil
 }
 
+// CommitTagSearchByName
+// get commit by tag search by name
 func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
 	if tagName == "" {
 		return nil, fmt.Errorf("commit tag search by name is empty")
@@ -196,6 +235,8 @@ func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
 	return wantCommit, nil
 }
 
+// CommitTagSearchByFirstLine
+// get commit by tag search by first line
 func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
 	if firstLine == "" {
 		return nil, fmt.Errorf("commit tag search by firstLine is empty")
