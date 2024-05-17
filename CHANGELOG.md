@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [convention-change-log](https://github.com/convention-change/convention-change-log) for commit guidelines.
 
+## [1.13.0](https://github.com/sinlov-go/go-git-tools/compare/1.12.0...v1.13.0) (2024-05-18)
+
+### 🐛 Bug Fixes
+
+* add `CheckWorkTreeIsDirtyWithGitCmd` to try fix windows error ([c4a3d7e4](https://github.com/sinlov-go/go-git-tools/commit/c4a3d7e45dc13b45b5b73c94770c00c0b65e745d)), fix [#28](https://github.com/sinlov-go/go-git-tools/issues/28)
+
+### ✨ Features
+
+* add `IsCitCmdAvailable` to check git command available ([9d88a383](https://github.com/sinlov-go/go-git-tools/commit/9d88a383b09b4986d8db92fd6858f3230ab5c3d2))
+
 ## [1.12.0](https://github.com/sinlov-go/go-git-tools/compare/1.11.0...v1.12.0) (2024-05-17)
 
 ### ✨ Features
