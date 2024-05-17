@@ -65,7 +65,7 @@ func TestHeadBranchName(t *testing.T) {
 }
 
 func TestCheckLocalBranchIsDirty(t *testing.T) {
-	const envFlag = "ENV_TEST_CHECK_LOCAL_BRANCH_IS_DIRTY"
+	const envFlag = "ENV_TEST_WORK_TREE_IS_DIRTY"
 	valEnvPath := env_kit.FetchOsEnvStr(envFlag, "")
 	if valEnvPath == "" {
 		t.Skipf("env is empty: %s", envFlag)
@@ -79,7 +79,25 @@ func TestCheckLocalBranchIsDirty(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("isDirty %v\n", isDirty)
+	fmt.Printf("CheckLocalBranchIsDirty isDirty: %v\n", isDirty)
+}
+
+func TestCheckWorkTreeIsDirtyWithCmd(t *testing.T) {
+	const envFlag = "ENV_TEST_WORK_TREE_IS_DIRTY"
+	valEnvPath := env_kit.FetchOsEnvStr(envFlag, "")
+	if valEnvPath == "" {
+		t.Skipf("env is empty: %s", envFlag)
+	}
+	repository, err := NewRepositoryByPath(valEnvPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	isDirty, err := repository.CheckWorkTreeIsDirtyWithGitCmd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("CheckWorkTreeIsDirtyWithGitCmd: isDirty %v\n", isDirty)
 }
 
 func TestCheckHasSubmodules(t *testing.T) {

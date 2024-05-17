@@ -53,6 +53,10 @@ type Repository interface {
 	// Like run cmd as: git status --porcelain
 	CheckLocalBranchIsDirty() (bool, error)
 
+	// CheckWorkTreeIsDirtyWithGitCmd
+	// check work tree is dirty by run exec: git status --porcelain
+	CheckWorkTreeIsDirtyWithGitCmd() (bool, error)
+
 	// Log return all commits between <from revision> and <to revision>
 	Log(fromRev, toRev string) ([]Commit, error)
 

@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/storer"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/sinlov-go/go-git-tools/git_info"
+	"github.com/sinlov-go/go-git-tools/internal/command_plus"
 	"strings"
 	"time"
 )
@@ -96,20 +97,47 @@ func (r *repo) CheckSubmodulesIsDirty() (bool, error) {
 // Like run cmd as: git status --porcelain
 func (r *repo) CheckLocalBranchIsDirty() (bool, error) {
 	if r.gitRepo == nil {
-		return true, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
+		return false, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
 	}
 	worktree, err := r.gitRepo.Worktree()
 	if err != nil {
-		return true, fmt.Errorf("check local branch is dirty error, want get work tree err: %v", err)
+		return false, fmt.Errorf("check local branch is dirty error, want get work tree err: %v", err)
 	}
 
 	status, errStatus := worktree.Status()
 	if errStatus != nil {
-		return true, fmt.Errorf("want get work tree status err: %v", errStatus)
+		return false, fmt.Errorf("want get work tree status err: %v", errStatus)
 	}
 	if status.IsClean() {
 		return false, nil
 	}
+	return true, nil
+}
+
+// CheckWorkTreeIsDirtyWithGitCmd
+// check work tree is dirty by run: git status --porcelain
+func (r *repo) CheckWorkTreeIsDirtyWithGitCmd() (bool, error) {
+	if r.gitRepo == nil {
+		return false, fmt.Errorf("check local branch is dirty error, git repo not init, or can not read")
+	}
+	worktree, errWorkTree := r.gitRepo.Worktree()
+	if errWorkTree != nil {
+		return false, fmt.Errorf("want get work tree err: %v", errWorkTree)
+	}
+	rootPath := worktree.Filesystem.Root()
+
+	cmdP := command_plus.NewCmd("git",
+		command_plus.WithCommandArgs([]string{"status", "--porcelain"}),
+		command_plus.WithRunPath(rootPath),
+	)
+	errExec := cmdP.Exec()
+	if errExec != nil {
+		return true, errExec
+	}
+	if strings.TrimSpace(cmdP.ExecStdOut()) == "" {
+		return false, nil
+	}
+
 	return true, nil
 }
 
