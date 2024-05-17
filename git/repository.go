@@ -53,6 +53,10 @@ type Repository interface {
 	// Like run cmd as: git status --porcelain
 	CheckLocalBranchIsDirty() (bool, error)
 
+	// IsCitCmdAvailable
+	// check git command is available
+	IsCitCmdAvailable() bool
+
 	// CheckWorkTreeIsDirtyWithGitCmd
 	// check work tree is dirty by run exec: git status --porcelain
 	CheckWorkTreeIsDirtyWithGitCmd() (bool, error)

@@ -114,6 +114,13 @@ func (r *repo) CheckLocalBranchIsDirty() (bool, error) {
 	return true, nil
 }
 
+// IsCitCmdAvailable
+// check git command is available
+func (r *repo) IsCitCmdAvailable() bool {
+	cmdP := command_plus.NewCmd("git")
+	return cmdP.IsCliAvailable()
+}
+
 // CheckWorkTreeIsDirtyWithGitCmd
 // check work tree is dirty by run: git status --porcelain
 func (r *repo) CheckWorkTreeIsDirtyWithGitCmd() (bool, error) {
