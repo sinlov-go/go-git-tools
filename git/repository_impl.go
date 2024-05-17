@@ -136,6 +136,8 @@ func (r *repo) Log(fromRev, toRev string) ([]Commit, error) {
 	return r.logWithStopFn(fromHash, nil, stopAtHash(toHash))
 }
 
+// CommitLatestTagByTime
+// get commit by tag latest by commit time
 func (r *repo) CommitLatestTagByTime() (*Commit, error) {
 	tagLatest, err := r.TagLatestByCommitTime()
 	if err != nil {
@@ -150,6 +152,8 @@ func (r *repo) CommitLatestTagByTime() (*Commit, error) {
 	return &commit, nil
 }
 
+// CommitTagSearchByName
+// get commit by tag search by name
 func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
 	if tagName == "" {
 		return nil, fmt.Errorf("commit tag search by name is empty")
@@ -196,6 +200,8 @@ func (r *repo) CommitTagSearchByName(tagName string) (*Commit, error) {
 	return wantCommit, nil
 }
 
+// CommitTagSearchByFirstLine
+// get commit by tag search by first line
 func (r *repo) CommitTagSearchByFirstLine(firstLine string) (*Commit, error) {
 	if firstLine == "" {
 		return nil, fmt.Errorf("commit tag search by firstLine is empty")

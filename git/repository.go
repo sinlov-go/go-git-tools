@@ -30,29 +30,82 @@ type repo struct {
 
 // Repository is an abstraction for git-repository
 type Repository interface {
+	// HeadReference
+	// get head reference
 	HeadReference() (*plumbing.Reference, error)
 
+	// HeadBranchName
+	// get head branch name
 	HeadBranchName() (string, error)
 
+	// CheckHasSubmodules
+	// check has submodules
+	// no has submodules must return false, nil
 	CheckHasSubmodules() (bool, error)
+	// CheckSubmodulesIsDirty
+	// check submodules is dirty.
+	// Warning submodule version must same as .gitmodules record
+	// like run as: git submodule status --recursive
+	// Fix dirty use: git submodule update --init --recursive
 	CheckSubmodulesIsDirty() (bool, error)
+	// CheckLocalBranchIsDirty
+	// find dirty file will return true and error is nil.
+	// Like run cmd as: git status --porcelain
 	CheckLocalBranchIsDirty() (bool, error)
 
+	// Log return all commits between <from revision> and <to revision>
 	Log(fromRev, toRev string) ([]Commit, error)
 
+	// CommitLatestTagByTime
+	// get commit by tag latest by commit time
 	CommitLatestTagByTime() (*Commit, error)
+	// CommitTagSearchByName
+	// get commit by tag search by name
 	CommitTagSearchByName(tagName string) (*Commit, error)
+	// CommitTagSearchByFirstLine
+	// get commit by tag search by first line
 	CommitTagSearchByFirstLine(firstLine string) (*Commit, error)
-	Commit(commitMessage string, paths ...string) error
-
+	// TagLatestByCommitTime
+	//
+	//	latest tag find by commit time, please ensure that the time of the device submitting the tag is synchronized correctly.
+	//	check at: git show-ref --tag
+	//
+	// return latest tag
 	TagLatestByCommitTime() (*object.Tag, error)
 
+	Commit(commitMessage string, paths ...string) error // commit with message
+
+	// RemoteInfo
+	//
+	// remote most is git.OriginDefault
+	//
+	// configUrlIndex most is 0
+	//
+	// return Repository from git.Repository
 	RemoteInfo(remoteName string, configUrlIndex int) (*git_info.GitRemoteInfo, error)
 
-	SetProxyOptions(options transport.ProxyOptions)
+	// SetAuthMethod
+	// auth transport.AuthMethod
+	//
+	//	auth, err := ssh.NewPublicKeysFromFile("git", valSshKeyPath, valSshKeyPassWord)
+	//	if err != nil {
+	//		t.Fatal(err)
+	//	}
+	//
+	//	repository.SetAuthMethod(auth)
 	SetAuthMethod(auth transport.AuthMethod)
+	// SetProxyOptions
+	// options transport.ProxyOptions
+	SetProxyOptions(options transport.ProxyOptions)
 
+	// PullOrigin
+	// warning: direct support public repository, private repository must use SetAuth before.
+	// like: git pull origin
 	PullOrigin() error
+	// FetchTags
+	// warning: direct support public repository, private repository must use SetAuth before.
+	// fetch tags
+	// like run as: git fetch --tags
 	FetchTags() error
 }
 
