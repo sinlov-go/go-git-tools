@@ -3,7 +3,7 @@
 # Author: sinlov
 # dockerfile offical document https://docs.docker.com/engine/reference/builder/
 # https://hub.docker.com/_/golang
-FROM golang:1.19.13-bullseye as builder
+FROM golang:1.23.8-bullseye as builder
 
 ARG GO_ENV_PACKAGE_NAME=github.com/sinlov-go/go-git-tools
 ARG GO_ENV_ROOT_BUILD_BIN_NAME=go-git-tools

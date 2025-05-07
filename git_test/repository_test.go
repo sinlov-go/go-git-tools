@@ -222,7 +222,9 @@ func TestRemoteInfo(t *testing.T) {
 				t.Logf("gitRemoteInfo.Host %s", gitRemoteInfo.Host)
 				t.Logf("gitRemoteInfo.Hostname %s", gitRemoteInfo.Hostname)
 				t.Logf("gitRemoteInfo.Port %s", gitRemoteInfo.Port)
+				assert.NotEqual(t, "", gitRemoteInfo.User, "gitRemoteInfo.User is empty")
 				t.Logf("gitRemoteInfo.User %s", gitRemoteInfo.User)
+				assert.NotEqual(t, "", gitRemoteInfo.Repo, "gitRemoteInfo.Repo is empty")
 				t.Logf("gitRemoteInfo.Repo %s", gitRemoteInfo.Repo)
 			}
 		})

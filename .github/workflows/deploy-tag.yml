@@ -29,7 +29,7 @@ on:
         required: false
         type: string
 
-permissions: # https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
   contents: write
   discussions: write
 
@@ -72,7 +72,7 @@ jobs:
           # body_path: ${{ github.workspace }}/CHANGELOG.md
           ## set release binaries, empty means do not upload files for release
           # https://github.com/isaacs/node-glob
-          files: |
-            **/*.zip
-            **/*.tar.gz
-            **/*.sha256
+#           files: |
+#             **/*.zip
+#             **/*.tar.gz
+#             **/*.sha256

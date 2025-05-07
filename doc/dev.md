@@ -13,16 +13,16 @@ Please read [Contributor Guide](.github/CONTRIBUTING_DOC/CONTRIBUTING.md) for mo
 
 ## env
 
-- minimum go version: go 1.19
-- change `go 1.19`, `^1.19`, `1.19.13` to new go version
+- minimum go version: go 1.23
+- change `go 1.23`, `^1.23`, `1.23.8` to new go version
 
 ### libs
 
-| lib                                 | version |
-|:------------------------------------|:--------|
-| https://github.com/stretchr/testify | v1.8.4  |
-| https://github.com/go-git/go-git    | v5.10.1 |
-| https://github.com/chainguard-dev/git-urls   | v1.0.2  |
+| lib                                        | version |
+|:-------------------------------------------|:--------|
+| https://github.com/stretchr/testify        | v1.8.4  |
+| https://github.com/go-git/go-git           | v5.10.1 |
+| https://github.com/chainguard-dev/git-urls | v1.0.2  |
 
 ## usage
 

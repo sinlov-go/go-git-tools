@@ -1,6 +1,8 @@
 module github.com/sinlov-go/go-git-tools
 
-go 1.19
+go 1.23
+
+toolchain go1.23.8
 
 require (
 	github.com/chainguard-dev/git-urls v1.0.2
