@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [convention-change-log](https://github.com/convention-change/convention-change-log) for commit guidelines.
 
+## [1.14.0](https://github.com/sinlov-go/go-git-tools/compare/v1.13.0...v1.14.0) (2025-05-08)
+
+### ✨ Features
+
+* update dependencies and lint settings to go 1.23+ ([70c5aaf1](https://github.com/sinlov-go/go-git-tools/commit/70c5aaf1fe9318ee8cd4c439514cecbb8f8f9836))
+
+* update README v1.14.+ must with (go 1.23.+) ([6fe8913c](https://github.com/sinlov-go/go-git-tools/commit/6fe8913c469c7eb6ab91a1be5e610d252eba639e))
+
+### 👷‍ Build System
+
+* update Go version to 1.23 and add build ID ([edd9012f](https://github.com/sinlov-go/go-git-tools/commit/edd9012f2814b28d013243c898ae2b0097eec115))
+
+* bump codecov/codecov-action from 5.4.0 to 5.4.2 ([98a458ee](https://github.com/sinlov-go/go-git-tools/commit/98a458ee2997970106f102c251f15f3327a17273))
+
+* bump codecov/codecov-action from 5.3.1 to 5.4.0 ([c32a8091](https://github.com/sinlov-go/go-git-tools/commit/c32a80915907fa599b9e4470a4ecb203b84951b3))
+
+* bump codecov/codecov-action from 5.1.2 to 5.3.1 ([4ee1c484](https://github.com/sinlov-go/go-git-tools/commit/4ee1c484d64d50f6c3ba12c9657ed8933c43e142))
+
+* bump codecov/codecov-action from 5.0.7 to 5.1.2 ([54742a11](https://github.com/sinlov-go/go-git-tools/commit/54742a11f4615e52a7fa41e8dc5ac0ef4165a892))
+
+* bump codecov/codecov-action from 4.6.0 to 5.0.7 ([eb1fcd74](https://github.com/sinlov-go/go-git-tools/commit/eb1fcd747456dae258e75920b1684bdd0c305a42))
+
+* bump codecov/codecov-action from 4.5.0 to 4.6.0 ([d932f10b](https://github.com/sinlov-go/go-git-tools/commit/d932f10b95dffef522cfa47677a6514dae502170))
+
+* bump codecov/codecov-action from 4.4.1 to 4.5.0 ([1388b312](https://github.com/sinlov-go/go-git-tools/commit/1388b31202b265b297e1e62d5edaa270488d44a3))
+
+* bump codecov/codecov-action from 4.4.0 to 4.4.1 ([71071092](https://github.com/sinlov-go/go-git-tools/commit/71071092168a0621033fbed675d0a14429de4616))
+
 ## [1.13.0](https://github.com/sinlov-go/go-git-tools/compare/v1.12.0...v1.13.0) (2024-05-18)
 
 ### 🐛 Bug Fixes
@@ -193,4 +221,3 @@ All notable changes to this project will be documented in this file. See [conven
 * add package git for operation git repo ([67315d9](https://github.com/sinlov-go/go-git-tools/commit/67315d99fdb71622ab98a190d9fe9b22b237cb78))
 
 ## 1.0.0 (2023-07-04)
-
