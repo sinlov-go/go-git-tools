@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [convention-change-log](https://github.com/convention-change/convention-change-log) for commit guidelines.
 
-## [1.13.0](https://github.com/sinlov-go/go-git-tools/compare/1.12.0...v1.13.0) (2024-05-18)
+## [1.13.0](https://github.com/sinlov-go/go-git-tools/compare/v1.12.0...v1.13.0) (2024-05-18)
 
 ### 🐛 Bug Fixes
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 * add `IsCitCmdAvailable` to check git command available ([9d88a383](https://github.com/sinlov-go/go-git-tools/commit/9d88a383b09b4986d8db92fd6858f3230ab5c3d2))
 
-## [1.12.0](https://github.com/sinlov-go/go-git-tools/compare/1.11.0...v1.12.0) (2024-05-17)
+## [1.12.0](https://github.com/sinlov-go/go-git-tools/compare/v1.11.0...v1.12.0) (2024-05-17)
 
 ### ✨ Features
 
@@ -50,7 +50,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 * changet to tag_changes: ${{ needs.version.outputs.cc_changes }} ([65a1ff5b](https://github.com/sinlov-go/go-git-tools/commit/65a1ff5b5fb10946debc4702a95184c862e7538e))
 
-## [1.11.0](https://github.com/sinlov-go/go-git-tools/compare/1.10.0...v1.11.0) (2024-01-22)
+## [1.11.0](https://github.com/sinlov-go/go-git-tools/compare/v1.10.0...v1.11.0) (2024-01-22)
 
 ### ✨ Features
 
@@ -68,7 +68,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 * change golangci/golangci-lint-action use version latest ([f05cc81f](https://github.com/sinlov-go/go-git-tools/commit/f05cc81fceb1ab79df49dbfb70d270457a96b066))
 
-## [1.10.0](https://github.com/sinlov-go/go-git-tools/compare/1.9.1...v1.10.0) (2023-12-05)
+## [1.10.0](https://github.com/sinlov-go/go-git-tools/compare/v1.9.1...v1.10.0) (2023-12-05)
 
 ### ✨ Features
 
@@ -194,4 +194,3 @@ All notable changes to this project will be documented in this file. See [conven
 
 ## 1.0.0 (2023-07-04)
 
-## 1.0.0 (2023-07-04)
