@@ -199,7 +199,7 @@ func TestRemoteInfo(t *testing.T) {
 			cloneUrl: "https://github.com/sinlov-go/go-git-tools.git",
 		},
 		{
-			name:          "local",
+			name:          "local-self",
 			repoLocalPath: gitRootPath,
 		},
 	}

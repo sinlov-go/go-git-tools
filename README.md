@@ -42,6 +42,10 @@ $ echo "go mod edit -require=$(go list -mod=readonly -m -versions github.com/sin
 $ echo "go mod vendor"
 ```
 
+version info
+
+- v1.14.+ must with (go 1.23.+)
+
 ## Features
 
 ### pkg `github.com/sinlov-go/go-git-tools/git`
